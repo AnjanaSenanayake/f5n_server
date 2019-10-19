@@ -1,5 +1,6 @@
 package com.mobilegenomics.f5n.controller;
 
+import com.mobilegenomics.f5n.core.Step;
 import com.mobilegenomics.f5n.dto.State;
 import com.mobilegenomics.f5n.dto.WrapperObject;
 import com.vaadin.data.provider.ListDataProvider;
@@ -76,7 +77,8 @@ public class DataController {
         idleWrapperObjectList = new ArrayList<>();
         WrapperObject newWrapperObject;
         for (String prefix : filePrefixes) {
-            newWrapperObject = new WrapperObject("ID_" + prefix, State.IDLE, pathToDir, CoreController.getPipelineComponents());
+            ArrayList<Step> steps = new ArrayList<>(CoreController.getSteps().values());
+            newWrapperObject = new WrapperObject(prefix, State.IDLE, pathToDir, steps);
             idleWrapperObjectList.add(newWrapperObject);
         }
     }

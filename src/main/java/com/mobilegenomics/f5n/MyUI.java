@@ -101,7 +101,13 @@ public class MyUI extends UI {
 
         Button btnStartServer = new Button("Start Server");
         btnStartServer.addClickListener(event -> {
-            UIController.runServer();
+            if(event.getButton().getCaption().equals("Start Server")) {
+                UIController.runServer();
+                event.getButton().setCaption("Stop Server");
+            } else {
+                UIController.stopServer();
+                event.getButton().setCaption("Start Server");
+            }
         });
         btnLayout.addComponents(layoutGenerateJobs, btnStartServer);
 

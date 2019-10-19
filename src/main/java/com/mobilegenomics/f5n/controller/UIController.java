@@ -20,9 +20,13 @@ import java.util.Set;
 
 public class UIController {
 
+    private static ServerSocket serverSocket;
+
     private static WrapperObject[] wrapperObjectsArray;
     private static ArrayList<String> componentsNameList;
     static ArrayList<Argument> arguments;
+
+    private static boolean isLive;
 
     public static void addPipelineSteps(Set<String> checkedPipelineSteps) {
         for (PipelineStep pipelineStep : PipelineStep.values()) {
@@ -67,7 +71,7 @@ public class UIController {
             }
         }
         CoreController.buildCommandString();
-        CoreController.createPipeline();
+        //CoreController.createPipeline();
     }
 
     public static ArrayList<String> getComponentsNameList() {
@@ -99,43 +103,57 @@ public class UIController {
     }
 
     public static void runServer() {
+        isLive = true;
         try {
-            ServerSocket serverSocket = new ServerSocket(6677);
+            serverSocket = new ServerSocket(6677);
             new Thread(() -> {
-                while (true) {
+                while (isLive) {
                     try {
                         //Establishes connection
-                        Socket socket = serverSocket.accept();
-                        System.out.println("A client is connected: " + socket.getLocalSocketAddress());
-                        ObjectInputStream objectInStream = null;
-                        objectInStream = new ObjectInputStream(socket.getInputStream());
-                        if (objectInStream.available() == 0) {
-                            WrapperObject clientMessage = (WrapperObject) objectInStream.readObject();
-                            System.out.println("From client= " + clientMessage.toString());
-
-                            ObjectOutputStream objectOutStream = new ObjectOutputStream(socket.getOutputStream());
-                            WrapperObject replyObject = new WrapperObject();
-                            replyObject.setState(State.ACK);
-                            sendMessageToClient(replyObject, objectOutStream);
-
-                            if (clientMessage.getState().equals(State.CONNECT)) {
-                                Response<Boolean, Object> response = allocateJobToClient(objectOutStream, socket.getInetAddress().toString());
-                                WrapperObject receivedObject = (WrapperObject) response.message;
-                                updateGrids(receivedObject);
-                            }
-                            if (clientMessage.getState().equals(State.SUCCESS)) {
-                                WrapperObject receivedObject = receiveMessageFromClient(objectInStream);
-                                updateGrids(receivedObject);
-                            }
-                            objectOutStream.close();
+                        if(serverSocket.isClosed()) {
+                            isLive = false;
                         }
-                        objectInStream.close();
+                        else {
+                            Socket socket = serverSocket.accept();
+                            System.out.println("A client is connected: " + socket.getLocalSocketAddress());
+                            ObjectInputStream objectInStream = null;
+                            objectInStream = new ObjectInputStream(socket.getInputStream());
+                            if (objectInStream.available() == 0) {
+                                WrapperObject clientMessage = (WrapperObject) objectInStream.readObject();
+                                System.out.println("From client= " + clientMessage.toString());
+
+                                ObjectOutputStream objectOutStream = new ObjectOutputStream(socket.getOutputStream());
+                                WrapperObject replyObject = new WrapperObject();
+                                replyObject.setState(State.ACK);
+                                sendMessageToClient(replyObject, objectOutStream);
+
+                                if (clientMessage.getState().equals(State.REQUEST)) {
+                                    Response<Boolean, Object> response = allocateJobToClient(objectOutStream, socket.getInetAddress().toString());
+                                    WrapperObject receivedObject = (WrapperObject) response.message;
+                                    updateGrids(receivedObject);
+                                }
+                                if (clientMessage.getState().equals(State.COMPLETED)) {
+                                    WrapperObject receivedObject = receiveMessageFromClient(objectInStream);
+                                    updateGrids(receivedObject);
+                                }
+                                objectOutStream.close();
+                            }
+                            objectInStream.close();
+                        }
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
             }).start();
         } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void stopServer() {
+        try {
+            serverSocket.close();
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -155,29 +173,26 @@ public class UIController {
         try {
             receivedObject = (WrapperObject) objectInStream.readObject();
             System.out.println("From client= " + receivedObject.toString());
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
+        } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
         return receivedObject;
     }
 
     private static Response<Boolean, Object> allocateJobToClient(ObjectOutputStream objectOutStream, String clientAddress) {
-        for (WrapperObject wrapperObject : DataController.getIdleWrapperObjectList()) {
-            try {
-                wrapperObject.setState(State.PENDING);
-                wrapperObject.setClientIP(clientAddress);
-                objectOutStream.writeObject(wrapperObject);
-                objectOutStream.flush();
-                System.out.println("To client= " + wrapperObject.toString());
-                return new Response<>(true, wrapperObject);
-            } catch (IOException e) {
-                e.printStackTrace();
-                return new Response<>(false, ErrorMessage.COMM_FAIL);
-            }
+        WrapperObject wrapperObject = DataController.getIdleWrapperObjectList().get(0);
+        try {
+            wrapperObject.setState(State.PENDING);
+            wrapperObject.setClientIP(clientAddress);
+            objectOutStream.writeObject(wrapperObject);
+            objectOutStream.flush();
+            DataController.getIdleWrapperObjectList().removeIf(item -> (item.getPrefix().equals(wrapperObject.getPrefix())));
+            System.out.println("To client= " + wrapperObject.toString());
+            return new Response<>(true, wrapperObject);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new Response<>(false, ErrorMessage.COMM_FAIL);
         }
-        return new Response<>(false, ErrorMessage.NULL);
     }
 
     private static void updateGrids(WrapperObject object) {
