@@ -18,5 +18,6 @@ This is a job server to distribute and keep track of f5n pipeline jobs to connec
 **4) Open [localhost](http://localhost:8080/) in any web browser.**
 
 ## To Do
-- stop server & reconfiguration pipeline components
-- data set update listner
+- [x] stop server & reconfiguration pipeline components
+- [x] data set update listner
+- [ ] user messages/warnings/errors to frontend
