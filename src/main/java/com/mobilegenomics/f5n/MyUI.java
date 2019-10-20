@@ -154,17 +154,20 @@ public class MyUI extends UI {
         tabLayout.setMargin(true);
         for (Argument argument : UIController.getSteps().get(componentName).getArguments()) {
 
-            if (!argument.isRequired()) {
-                CheckBox checkBox = new CheckBox(argument.getArgName());
-                checkBox.setId("checkbox_" + argument.getArgName());
-                tabLayout.addComponent(checkBox);
-                if (!argument.isFlagOnly()) {
-                    TextField argumentInput = new TextField(argument.getArgName());
-                    argumentInput.setId("textfield_" + argument.getArgName());
-                    if (argument.getArgValue() != null)
-                        argumentInput.setValue(argument.getArgValue());
-                    tabLayout.addComponent(argumentInput);
+            CheckBox checkBox = new CheckBox(argument.getArgName());
+            checkBox.setId("checkbox_" + argument.getArgName());
+            tabLayout.addComponent(checkBox);
+            if (!argument.isFlagOnly()) {
+                TextField argumentInput = new TextField(argument.getArgName());
+                argumentInput.setId("textfield_" + argument.getArgName());
+                if(argument.isRequired()) {
+                    checkBox.setValue(true);
+                    checkBox.setEnabled(false);
+                    argumentInput.setRequiredIndicatorVisible(true);
                 }
+                if (argument.getArgValue() != null)
+                    argumentInput.setValue(argument.getArgValue());
+                tabLayout.addComponent(argumentInput);
             }
         }
         pipelineComponentsLayout.addTab(tabLayout, componentName);

@@ -48,23 +48,20 @@ public class UIController {
         for (String componentName : componentsNameList) {
             arguments = UIController.getSteps().get(componentName).getArguments();
             for (Argument argument : arguments) {
-                if (!argument.isRequired()) {
-                    CheckBox checkBox = (CheckBox) findComponentById(pipelineComponentsLayout, "checkbox_" + argument.getArgName());
-                    if (checkBox.getValue() && !argument.isFlagOnly()) {
-                        TextField argumentInput = (TextField) findComponentById(pipelineComponentsLayout, "textfield_" + argument.getArgName());
-                        if (argumentInput != null && !argumentInput.isEmpty()) {
-                            argument.setArgValue(argumentInput.getValue());
-                            argument.setSetByUser(true);
-                        }
-                    } else {
-                        if (checkBox.getValue() != null && !checkBox.isEmpty()) {
-                            argument.setArgValue(checkBox.getValue().toString());
-                            argument.setSetByUser(true);
-                        }
+                CheckBox checkBox = (CheckBox) findComponentById(pipelineComponentsLayout, "checkbox_" + argument.getArgName());
+                if (checkBox.getValue() && !argument.isFlagOnly()) {
+                    TextField argumentInput = (TextField) findComponentById(pipelineComponentsLayout, "textfield_" + argument.getArgName());
+                    if (argumentInput != null && !argumentInput.isEmpty()) {
+                        argument.setArgValue(argumentInput.getValue());
+                        argument.setSetByUser(true);
                     }
                 } else {
-                    argument.setSetByUser(true);
+                    if (checkBox.getValue() != null && !checkBox.isEmpty()) {
+                        argument.setArgValue(checkBox.getValue().toString());
+                        argument.setSetByUser(true);
+                    }
                 }
+
                 System.out.println(argument.getArgValue());
             }
         }
