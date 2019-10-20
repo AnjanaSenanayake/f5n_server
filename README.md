@@ -20,4 +20,5 @@ This is a job server to distribute and keep track of f5n pipeline jobs to connec
 ## To Do
 - [x] stop server & reconfiguration pipeline components
 - [x] data set update listner
+- [ ] pipeline configuration form validations
 - [ ] user messages/warnings/errors to frontend
