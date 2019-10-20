@@ -20,12 +20,10 @@ import java.util.Set;
 
 public class UIController {
 
+    static ArrayList<Argument> arguments;
     private static ServerSocket serverSocket;
-
     private static WrapperObject[] wrapperObjectsArray;
     private static ArrayList<String> componentsNameList;
-    static ArrayList<Argument> arguments;
-
     private static boolean isLive;
 
     public static void addPipelineSteps(Set<String> checkedPipelineSteps) {
@@ -97,9 +95,8 @@ public class UIController {
         return null; // none was found
     }
 
-    public static void configureWrapperObjects(String pathToDir) {
-        DataController.readFilesFromDir(pathToDir);
-        DataController.createWrapperObjects(pathToDir);
+    public static void configureWrapperObjects(String pathToDir, boolean isAutomate) {
+        DataController.createWrapperObjects(pathToDir, isAutomate);
     }
 
     public static void runServer() {
@@ -110,10 +107,9 @@ public class UIController {
                 while (isLive) {
                     try {
                         //Establishes connection
-                        if(serverSocket.isClosed()) {
+                        if (serverSocket.isClosed()) {
                             isLive = false;
-                        }
-                        else {
+                        } else {
                             Socket socket = serverSocket.accept();
                             System.out.println("A client is connected: " + socket.getLocalSocketAddress());
                             ObjectInputStream objectInStream = null;
@@ -130,11 +126,11 @@ public class UIController {
                                 if (clientMessage.getState().equals(State.REQUEST)) {
                                     Response<Boolean, Object> response = allocateJobToClient(objectOutStream, socket.getInetAddress().toString());
                                     WrapperObject receivedObject = (WrapperObject) response.message;
-                                    updateGrids(receivedObject);
+                                    DataController.updateGrids(receivedObject);
                                 }
                                 if (clientMessage.getState().equals(State.COMPLETED)) {
                                     WrapperObject receivedObject = receiveMessageFromClient(objectInStream);
-                                    updateGrids(receivedObject);
+                                    DataController.updateGrids(receivedObject);
                                 }
                                 objectOutStream.close();
                             }
@@ -195,25 +191,6 @@ public class UIController {
         }
     }
 
-    private static void updateGrids(WrapperObject object) {
-        if (object.getState().equals(State.PENDING)) {
-            DataController.idleListDataProvider.getItems().remove(object);
-            DataController.busyListDataProvider.getItems().add(object);
-        } else if (object.getState().equals(State.SUCCESS)) {
-            DataController.busyListDataProvider.getItems().removeIf(item -> (item.getPrefix().equals(object.getPrefix())));
-            DataController.busyListDataProvider.getItems().add(object);
-        }
-        refreshGrids();
-    }
-
-    private static void refreshGrids() {
-        if (DataController.idleListDataProvider != null) {
-            DataController.idleListDataProvider.refreshAll();
-        }
-        if (DataController.busyListDataProvider != null) {
-            DataController.busyListDataProvider.refreshAll();
-        }
-    }
 
     public static String getLocalIPAddress() {
         String ip = "127.0.0.1";
@@ -224,7 +201,7 @@ public class UIController {
                 if (iface.isLoopback() || !iface.isUp())
                     continue;
                 Enumeration<InetAddress> addresses = iface.getInetAddresses();
-                while(addresses.hasMoreElements()) {
+                while (addresses.hasMoreElements()) {
                     InetAddress addr = addresses.nextElement();
                     // *EDIT*
                     if (addr instanceof Inet6Address) continue;

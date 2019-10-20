@@ -5,7 +5,6 @@ import com.mobilegenomics.f5n.controller.UIController;
 import com.mobilegenomics.f5n.core.Argument;
 import com.mobilegenomics.f5n.dto.State;
 import com.mobilegenomics.f5n.dto.WrapperObject;
-
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.VaadinServletConfiguration;
 import com.vaadin.icons.VaadinIcons;
@@ -52,7 +51,7 @@ public class MyUI extends UI {
         try {
             inetAddress = InetAddress.getLocalHost();
             Label networkHostLabel = new Label();
-            networkHostLabel.setValue("Host Name: " + inetAddress.getHostName()+" IP Address: "+ UIController.getLocalIPAddress());
+            networkHostLabel.setValue("Host Name: " + inetAddress.getHostName() + " IP Address: " + UIController.getLocalIPAddress());
             networkHostLabel.addStyleName(ValoTheme.LABEL_H3);
             rootLayout.addComponent(networkHostLabel, 1);
         } catch (UnknownHostException e) {
@@ -65,7 +64,7 @@ public class MyUI extends UI {
         setContent(rootLayout);
     }
 
-    private void generatePipelineComponentsLayout(){
+    private void generatePipelineComponentsLayout() {
 
         Label checkBoxGroupLabel = new Label();
         checkBoxGroupLabel.setValue("Select Pipeline Components");
@@ -86,7 +85,7 @@ public class MyUI extends UI {
         Button btnStartServer = new Button("Start Server");
         btnStartServer.setEnabled(false);
         btnStartServer.addClickListener(event -> {
-            if(event.getButton().getCaption().equals("Start Server")) {
+            if (event.getButton().getCaption().equals("Start Server")) {
                 UIController.runServer();
                 event.getButton().setCaption("Stop Server");
                 pipelineComponentsLayout.setEnabled(false);
@@ -105,11 +104,15 @@ public class MyUI extends UI {
         btnGenerateJobs.setDisableOnClick(true);
 
         btnGenerateJobs.addClickListener(event -> {
-            UIController.configurePipelineComponents(pipelineComponentsLayout);
-            UIController.configureWrapperObjects(dataPathInput.getValue());
-            createGrids();
-            automateListingCheck.setEnabled(false);
-            btnStartServer.setEnabled(true);
+            if (dataPathInput.getValue() != null && !dataPathInput.isEmpty()) {
+                UIController.configurePipelineComponents(pipelineComponentsLayout);
+                UIController.configureWrapperObjects(dataPathInput.getValue(), automateListingCheck.getValue());
+                createGrids();
+                automateListingCheck.setEnabled(false);
+                btnStartServer.setEnabled(true);
+            } else {
+                dataPathInput.focus();
+            }
         });
         layoutGenerateJobs.addComponents(btnGenerateJobs, automateListingCheck);
         layoutGenerateJobs.setMargin(false);
@@ -117,18 +120,19 @@ public class MyUI extends UI {
         btnLayout.addComponents(layoutGenerateJobs, btnStartServer);
 
         pipelineComponentsCheckGroup.addValueChangeListener(event -> {
-            if(gridLayout != null)
+            if (gridLayout != null)
                 rootLayout.removeComponent(gridLayout);
-            if(!event.getValue().isEmpty()) {
+            if (!event.getValue().isEmpty()) {
                 btnGenerateJobs.setEnabled(true);
                 automateListingCheck.setEnabled(true);
+                DataController.fileDirMonitorDetach();
                 pipelineComponentsLayout.removeAllComponents();
                 UIController.eraseSelectedPipelineSteps();
                 UIController.getComponentsNameList();
                 DataController.getFilePrefixes().clear();
                 UIController.addPipelineSteps(pipelineComponentsCheckGroup.getSelectedItems());
                 pipelineComponentsLayout.addTab(pipelineComponentsCheckGroup, "Components List");
-                for(String componentName : event.getValue()) {
+                for (String componentName : event.getValue()) {
                     generatePipelineComponentArgumentLayout(pipelineComponentsLayout, componentName);
                     UIController.setComponentsNames(componentName);
                 }
@@ -150,14 +154,14 @@ public class MyUI extends UI {
         tabLayout.setMargin(true);
         for (Argument argument : UIController.getSteps().get(componentName).getArguments()) {
 
-            if(!argument.isRequired()) {
+            if (!argument.isRequired()) {
                 CheckBox checkBox = new CheckBox(argument.getArgName());
                 checkBox.setId("checkbox_" + argument.getArgName());
                 tabLayout.addComponent(checkBox);
                 if (!argument.isFlagOnly()) {
                     TextField argumentInput = new TextField(argument.getArgName());
                     argumentInput.setId("textfield_" + argument.getArgName());
-                    if(argument.getArgValue() != null)
+                    if (argument.getArgValue() != null)
                         argumentInput.setValue(argument.getArgValue());
                     tabLayout.addComponent(argumentInput);
                 }
