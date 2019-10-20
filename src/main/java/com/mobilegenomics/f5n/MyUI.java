@@ -30,8 +30,8 @@ public class MyUI extends UI {
 
     private VerticalLayout rootLayout;
     private TextField dataPathInput;
-
-    private  TabSheet pipelineComponentsLayout;
+    private TabSheet pipelineComponentsLayout;
+    private HorizontalLayout gridLayout;
 
     @Override
     protected void init(VaadinRequest vaadinRequest) {
@@ -59,7 +59,7 @@ public class MyUI extends UI {
             e.printStackTrace();
         }
 
-        dataPathSetter();
+        dataPathSetterLayout();
         generatePipelineComponentsLayout();
 
         setContent(rootLayout);
@@ -67,54 +67,61 @@ public class MyUI extends UI {
 
     private void generatePipelineComponentsLayout(){
 
-        pipelineComponentsLayout = new TabSheet();
-        pipelineComponentsLayout.setHeight(100.0f, Unit.PERCENTAGE);
-        pipelineComponentsLayout.addStyleName(ValoTheme.TABSHEET_FRAMED);
-        pipelineComponentsLayout.addStyleName(ValoTheme.TABSHEET_PADDED_TABBAR);
-
         Label checkBoxGroupLabel = new Label();
         checkBoxGroupLabel.setValue("Select Pipeline Components");
         checkBoxGroupLabel.addStyleName(ValoTheme.LABEL_LARGE);
         checkBoxGroupLabel.addStyleName(ValoTheme.LABEL_NO_MARGIN);
 
+        pipelineComponentsLayout = new TabSheet();
+        pipelineComponentsLayout.setHeight(100.0f, Unit.PERCENTAGE);
+        pipelineComponentsLayout.addStyleName(ValoTheme.TABSHEET_FRAMED);
+        pipelineComponentsLayout.addStyleName(ValoTheme.TABSHEET_PADDED_TABBAR);
         CheckBoxGroup<String> pipelineComponentsCheckGroup = new CheckBoxGroup<>("Select components");
         pipelineComponentsCheckGroup.setItems("MINIMAP2_SEQUENCE_ALIGNMENT", "SAMTOOL_SORT", "SAMTOOL_INDEX", "F5C_INDEX", "F5C_CALL_METHYLATION", "F5C_EVENT_ALIGNMENT");
         pipelineComponentsCheckGroup.addStyleName(ValoTheme.CHECKBOX_LARGE);
-
         pipelineComponentsLayout.addTab(pipelineComponentsCheckGroup, "Components List");
 
         HorizontalLayout btnLayout = new HorizontalLayout();
 
+        Button btnStartServer = new Button("Start Server");
+        btnStartServer.setEnabled(false);
+        btnStartServer.addClickListener(event -> {
+            if(event.getButton().getCaption().equals("Start Server")) {
+                UIController.runServer();
+                event.getButton().setCaption("Stop Server");
+                pipelineComponentsLayout.setEnabled(false);
+            } else {
+                UIController.stopServer();
+                event.getButton().setCaption("Start Server");
+                pipelineComponentsLayout.setEnabled(true);
+            }
+        });
+
         VerticalLayout layoutGenerateJobs = new VerticalLayout();
         Button btnGenerateJobs = new Button("Generate Job List");
         CheckBox automateListingCheck = new CheckBox("Automate Listing");
-        //btnGenerateJobs.setEnabled(false);
+        btnGenerateJobs.setEnabled(false);
+        automateListingCheck.setEnabled(false);
         btnGenerateJobs.setDisableOnClick(true);
 
         btnGenerateJobs.addClickListener(event -> {
             UIController.configurePipelineComponents(pipelineComponentsLayout);
             UIController.configureWrapperObjects(dataPathInput.getValue());
             createGrids();
+            automateListingCheck.setEnabled(false);
+            btnStartServer.setEnabled(true);
         });
         layoutGenerateJobs.addComponents(btnGenerateJobs, automateListingCheck);
         layoutGenerateJobs.setMargin(false);
 
-        Button btnStartServer = new Button("Start Server");
-        btnStartServer.addClickListener(event -> {
-            if(event.getButton().getCaption().equals("Start Server")) {
-                UIController.runServer();
-                event.getButton().setCaption("Stop Server");
-            } else {
-                UIController.stopServer();
-                event.getButton().setCaption("Start Server");
-            }
-        });
         btnLayout.addComponents(layoutGenerateJobs, btnStartServer);
 
         pipelineComponentsCheckGroup.addValueChangeListener(event -> {
-
+            if(gridLayout != null)
+                rootLayout.removeComponent(gridLayout);
             if(!event.getValue().isEmpty()) {
                 btnGenerateJobs.setEnabled(true);
+                automateListingCheck.setEnabled(true);
                 pipelineComponentsLayout.removeAllComponents();
                 UIController.eraseSelectedPipelineSteps();
                 UIController.getComponentsNameList();
@@ -126,13 +133,16 @@ public class MyUI extends UI {
                     UIController.setComponentsNames(componentName);
                 }
             } else {
-                //btnGenerateJobs.setEnabled(false);
+                btnGenerateJobs.setEnabled(false);
+                automateListingCheck.setEnabled(false);
                 pipelineComponentsLayout.removeAllComponents();
                 pipelineComponentsLayout.addTab(pipelineComponentsCheckGroup, "Components List");
             }
+            btnStartServer.setEnabled(false);
         });
 
-        rootLayout.addComponents(checkBoxGroupLabel, pipelineComponentsLayout, btnLayout);
+        rootLayout.addComponents(checkBoxGroupLabel, pipelineComponentsLayout);
+        rootLayout.addComponent(btnLayout);
     }
 
     private void generatePipelineComponentArgumentLayout(TabSheet pipelineComponentsLayout, String componentName) {
@@ -156,7 +166,7 @@ public class MyUI extends UI {
         pipelineComponentsLayout.addTab(tabLayout, componentName);
     }
 
-    private void dataPathSetter() {
+    private void dataPathSetterLayout() {
         FormLayout formFilePath = new FormLayout();
 
         dataPathInput = new TextField("Data Set Path: ");
@@ -170,7 +180,7 @@ public class MyUI extends UI {
     }
 
     private void createGrids() {
-        HorizontalLayout horizontalLayout = new HorizontalLayout();
+        gridLayout = new HorizontalLayout();
 
         Grid<WrapperObject> gridIdleJobs = new Grid<>();
         gridIdleJobs.setCaption("Unallocated Jobs");
@@ -189,8 +199,8 @@ public class MyUI extends UI {
         gridAllocatedJobs.setSizeFull();
         gridAllocatedJobs.addStyleName(ValoTheme.TABLE_NO_VERTICAL_LINES);
 
-        horizontalLayout.addComponentsAndExpand(gridIdleJobs, gridAllocatedJobs);
-        rootLayout.addComponentsAndExpand(horizontalLayout);
+        gridLayout.addComponentsAndExpand(gridIdleJobs, gridAllocatedJobs);
+        rootLayout.addComponent(gridLayout);
     }
 
     @WebServlet(urlPatterns = "/*", name = "MyUIServlet", asyncSupported = true)
