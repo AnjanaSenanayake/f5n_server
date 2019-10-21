@@ -98,10 +98,9 @@ public class MyUI extends UI {
 
         VerticalLayout layoutGenerateJobs = new VerticalLayout();
         Button btnGenerateJobs = new Button("Generate Job List");
-        CheckBox automateListingCheck = new CheckBox("Automate Listing");
+        CheckBox automateListingCheck = new CheckBox("Automate Job Listing");
         btnGenerateJobs.setEnabled(false);
         automateListingCheck.setEnabled(false);
-        btnGenerateJobs.setDisableOnClick(true);
 
         btnGenerateJobs.addClickListener(event -> {
             if (dataPathInput.getValue() != null && !dataPathInput.isEmpty()) {
@@ -152,15 +151,18 @@ public class MyUI extends UI {
     private void generatePipelineComponentArgumentLayout(TabSheet pipelineComponentsLayout, String componentName) {
         FormLayout tabLayout = new FormLayout();
         tabLayout.setMargin(true);
+        CheckBox checkBox_prepend = new CheckBox("Prepend data set path to file inputs");
+        checkBox_prepend.setId(componentName + "_checkbox_prepend_" + componentName);
+        tabLayout.addComponent(checkBox_prepend);
         for (Argument argument : UIController.getSteps().get(componentName).getArguments()) {
 
             CheckBox checkBox = new CheckBox(argument.getArgName());
-            checkBox.setId("checkbox_" + argument.getArgName());
-            tabLayout.addComponent(checkBox);
+            checkBox.setId(componentName + "_checkbox_" + argument.getArgName());
+            tabLayout.addComponents(checkBox);
             if (!argument.isFlagOnly()) {
                 TextField argumentInput = new TextField(argument.getArgName());
-                argumentInput.setId("textfield_" + argument.getArgName());
-                if(argument.isRequired()) {
+                argumentInput.setId(componentName + "_textfield_" + argument.getArgName());
+                if (argument.isRequired()) {
                     checkBox.setValue(true);
                     checkBox.setEnabled(false);
                     argumentInput.setRequiredIndicatorVisible(true);
@@ -171,6 +173,21 @@ public class MyUI extends UI {
             }
         }
         pipelineComponentsLayout.addTab(tabLayout, componentName);
+
+        checkBox_prepend.addValueChangeListener(event -> {
+            String DATA_SET_PATH;
+            if (event.getValue()) {
+                DATA_SET_PATH = "$DATA_SET_PATH/";
+            } else {
+                DATA_SET_PATH = "";
+            }
+            for (Argument argument : UIController.getSteps().get(componentName).getArguments()) {
+                if (!argument.isFlagOnly() && argument.isFile()) {
+                    TextField argumentInput = (TextField) UIController.findComponentById(tabLayout, componentName + "_textfield_" + argument.getArgName());
+                    argumentInput.setValue(DATA_SET_PATH);
+                }
+            }
+        });
     }
 
     private void dataPathSetterLayout() {

@@ -47,10 +47,11 @@ public class UIController {
     public static void configurePipelineComponents(TabSheet pipelineComponentsLayout) {
         for (String componentName : componentsNameList) {
             arguments = UIController.getSteps().get(componentName).getArguments();
+            //CheckBox checkBox_prepend = (CheckBox) findComponentById(pipelineComponentsLayout, componentName + "_checkbox_prepend" + componentName);
             for (Argument argument : arguments) {
-                CheckBox checkBox = (CheckBox) findComponentById(pipelineComponentsLayout, "checkbox_" + argument.getArgName());
+                CheckBox checkBox = (CheckBox) findComponentById(pipelineComponentsLayout, componentName + "_checkbox_" + argument.getArgName());
                 if (checkBox.getValue() && !argument.isFlagOnly()) {
-                    TextField argumentInput = (TextField) findComponentById(pipelineComponentsLayout, "textfield_" + argument.getArgName());
+                    TextField argumentInput = (TextField) findComponentById(pipelineComponentsLayout, componentName + "_textfield_" + argument.getArgName());
                     if (argumentInput != null && !argumentInput.isEmpty()) {
                         argument.setArgValue(argumentInput.getValue());
                         argument.setSetByUser(true);
@@ -78,7 +79,7 @@ public class UIController {
         componentsNameList.add(componentsName);
     }
 
-    private static Component findComponentById(HasComponents root, String id) {
+    public static Component findComponentById(HasComponents root, String id) {
         for (Component child : root) {
             if (id.equals(child.getId())) {
                 return child; // found it!
