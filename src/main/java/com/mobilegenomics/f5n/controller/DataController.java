@@ -7,20 +7,26 @@ import com.vaadin.data.provider.ListDataProvider;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.Inet6Address;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.nio.file.*;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.Objects;
 
 public class DataController {
 
-    private static Thread fileMonitorThread = null;
     static ListDataProvider<WrapperObject> idleListDataProvider;
     static ListDataProvider<WrapperObject> busyListDataProvider;
+    private static Thread fileMonitorThread = null;
     private static WrapperObject[] wrapperObjectsArray;
     private static ArrayList<WrapperObject> idleWrapperObjectList;
     private static ArrayList<WrapperObject> pendingWrapperObjectList;
     private static String SPLITTER = ".tar";
     private static ArrayList<String> filePrefixes = new ArrayList<>();
+    private static WatchService watchService;
 
     public static ListDataProvider<WrapperObject> setListDataProvider(State state) {
         if (state == State.IDLE) {
@@ -48,9 +54,8 @@ public class DataController {
     }
 
     private static void fileDirMonitorAttach(String pathToDir, boolean isAutomate) {
-        if(isAutomate) {
-            fileMonitorThread = new Thread(() -> {
-                WatchService watchService;
+        if (isAutomate) {
+            new Thread(() -> {
                 int filesCount = Objects.requireNonNull(new File(pathToDir).list()).length;
                 System.out.println(filesCount);
 
@@ -79,19 +84,17 @@ public class DataController {
                 } catch (IOException | InterruptedException e) {
                     e.printStackTrace();
                 }
-            });
-            fileMonitorThread.start();
-        }else {
+            }).start();
+        } else {
             fileDirMonitorDetach();
         }
     }
 
     public static void fileDirMonitorDetach() {
-        if (fileMonitorThread != null) {
+        if (watchService != null) {
             try {
-                fileMonitorThread.interrupt();
-                fileMonitorThread.join();
-            } catch (InterruptedException e) {
+                watchService.close();
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }
@@ -103,10 +106,15 @@ public class DataController {
         WrapperObject newWrapperObject;
         for (String prefix : filePrefixes) {
             ArrayList<Step> steps = new ArrayList<>(CoreController.getSteps().values());
-            newWrapperObject = new WrapperObject(prefix, State.IDLE, pathToDir, steps);
+            newWrapperObject = new WrapperObject(prefix, State.IDLE, "http://" + getLocalIPAddress() + ":5050/", steps);
             idleWrapperObjectList.add(newWrapperObject);
         }
         fileDirMonitorAttach(pathToDir, isAutomate);
+    }
+
+    public static void clearWrapperObjects() {
+        getIdleWrapperObjectList().clear();
+        getPendingWrapperObjectList().clear();
     }
 
     public static void updateGrids(WrapperObject object) {
@@ -141,5 +149,28 @@ public class DataController {
 
     public static ArrayList<WrapperObject> getPendingWrapperObjectList() {
         return pendingWrapperObjectList;
+    }
+
+    public static String getLocalIPAddress() {
+        String ip = "127.0.0.1";
+        try {
+            Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+            while (interfaces.hasMoreElements()) {
+                NetworkInterface iface = interfaces.nextElement();
+                if (iface.isLoopback() || !iface.isUp())
+                    continue;
+                Enumeration<InetAddress> addresses = iface.getInetAddresses();
+                while (addresses.hasMoreElements()) {
+                    InetAddress addr = addresses.nextElement();
+                    // *EDIT*
+                    if (addr instanceof Inet6Address) continue;
+
+                    ip = addr.getHostAddress();
+                }
+            }
+        } catch (SocketException e) {
+            throw new RuntimeException(e);
+        }
+        return ip;
     }
 }

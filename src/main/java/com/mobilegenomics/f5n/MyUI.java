@@ -5,6 +5,7 @@ import com.mobilegenomics.f5n.controller.UIController;
 import com.mobilegenomics.f5n.core.Argument;
 import com.mobilegenomics.f5n.dto.State;
 import com.mobilegenomics.f5n.dto.WrapperObject;
+import com.mobilegenomics.f5n.support.FileServer;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.VaadinServletConfiguration;
 import com.vaadin.icons.VaadinIcons;
@@ -51,7 +52,7 @@ public class MyUI extends UI {
         try {
             inetAddress = InetAddress.getLocalHost();
             Label networkHostLabel = new Label();
-            networkHostLabel.setValue("Host Name: " + inetAddress.getHostName() + " IP Address: " + UIController.getLocalIPAddress());
+            networkHostLabel.setValue("Host Name: " + inetAddress.getHostName() + " IP Address: " + DataController.getLocalIPAddress());
             networkHostLabel.addStyleName(ValoTheme.LABEL_H3);
             rootLayout.addComponent(networkHostLabel, 1);
         } catch (UnknownHostException e) {
@@ -82,49 +83,42 @@ public class MyUI extends UI {
 
         HorizontalLayout btnLayout = new HorizontalLayout();
 
-        Button btnStartServer = new Button("Start Server");
-        btnStartServer.setEnabled(false);
-        btnStartServer.addClickListener(event -> {
-            if (event.getButton().getCaption().equals("Start Server")) {
-                UIController.runServer();
-                event.getButton().setCaption("Stop Server");
-                pipelineComponentsLayout.setEnabled(false);
-            } else {
-                UIController.stopServer();
-                event.getButton().setCaption("Start Server");
-                pipelineComponentsLayout.setEnabled(true);
-            }
-        });
-
-        VerticalLayout layoutGenerateJobs = new VerticalLayout();
-        Button btnGenerateJobs = new Button("Generate Job List");
         CheckBox automateListingCheck = new CheckBox("Automate Job Listing");
-        btnGenerateJobs.setEnabled(false);
-        automateListingCheck.setEnabled(false);
-
-        btnGenerateJobs.addClickListener(event -> {
-            if (dataPathInput.getValue() != null && !dataPathInput.isEmpty()) {
-                UIController.configurePipelineComponents(pipelineComponentsLayout);
-                UIController.configureWrapperObjects(dataPathInput.getValue(), automateListingCheck.getValue());
-                createGrids();
-                automateListingCheck.setEnabled(false);
-                btnStartServer.setEnabled(true);
+        Button btnStartServer = new Button("Start Server");
+        btnStartServer.addClickListener(event -> {
+            if (dataPathInput.getValue() != null && !dataPathInput.getValue().trim().isEmpty()) {
+                if (event.getButton().getCaption().equals("Start Server")) {
+                    UIController.configurePipelineComponents(pipelineComponentsLayout);
+                    UIController.configureWrapperObjects(dataPathInput.getValue().trim(), automateListingCheck.getValue());
+                    createGrids();
+                    UIController.runServer();
+                    //FileServer.startFileServer(5050, dataPathInput.getValue().trim());
+                    event.getButton().setCaption("Stop Server");
+                    automateListingCheck.setEnabled(false);
+                    pipelineComponentsLayout.setEnabled(false);
+                } else {
+                    UIController.stopServer();
+                    //FileServer.stopFileServer();
+                    DataController.getFilePrefixes().clear();
+                    UIController.clearWrapperObjects();
+                    DataController.fileDirMonitorDetach();
+                    removeGrids();
+                    event.getButton().setCaption("Start Server");
+                    automateListingCheck.setEnabled(true);
+                    pipelineComponentsLayout.setEnabled(true);
+                }
             } else {
                 dataPathInput.focus();
             }
         });
-        layoutGenerateJobs.addComponents(btnGenerateJobs, automateListingCheck);
-        layoutGenerateJobs.setMargin(false);
 
-        btnLayout.addComponents(layoutGenerateJobs, btnStartServer);
+        btnLayout.addComponents(btnStartServer, automateListingCheck);
 
         pipelineComponentsCheckGroup.addValueChangeListener(event -> {
             if (gridLayout != null)
                 rootLayout.removeComponent(gridLayout);
             if (!event.getValue().isEmpty()) {
-                btnGenerateJobs.setEnabled(true);
-                automateListingCheck.setEnabled(true);
-                DataController.fileDirMonitorDetach();
+                btnLayout.setEnabled(true);
                 pipelineComponentsLayout.removeAllComponents();
                 UIController.eraseSelectedPipelineSteps();
                 UIController.getComponentsNameList();
@@ -136,14 +130,11 @@ public class MyUI extends UI {
                     UIController.setComponentsNames(componentName);
                 }
             } else {
-                btnGenerateJobs.setEnabled(false);
-                automateListingCheck.setEnabled(false);
+                btnLayout.setEnabled(false);
                 pipelineComponentsLayout.removeAllComponents();
                 pipelineComponentsLayout.addTab(pipelineComponentsCheckGroup, "Components List");
             }
-            btnStartServer.setEnabled(false);
         });
-
         rootLayout.addComponents(checkBoxGroupLabel, pipelineComponentsLayout);
         rootLayout.addComponent(btnLayout);
     }
@@ -225,6 +216,10 @@ public class MyUI extends UI {
 
         gridLayout.addComponentsAndExpand(gridIdleJobs, gridAllocatedJobs);
         rootLayout.addComponent(gridLayout);
+    }
+
+    private void removeGrids() {
+        rootLayout.removeComponent(gridLayout);
     }
 
     @WebServlet(urlPatterns = "/*", name = "MyUIServlet", asyncSupported = true)

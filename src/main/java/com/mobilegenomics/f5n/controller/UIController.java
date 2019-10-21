@@ -12,9 +12,9 @@ import com.vaadin.ui.*;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.net.*;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Set;
 
@@ -24,7 +24,6 @@ public class UIController {
     private static ServerSocket serverSocket;
     private static WrapperObject[] wrapperObjectsArray;
     private static ArrayList<String> componentsNameList;
-    private static boolean isLive;
 
     public static void addPipelineSteps(Set<String> checkedPipelineSteps) {
         for (PipelineStep pipelineStep : PipelineStep.values()) {
@@ -94,46 +93,45 @@ public class UIController {
     }
 
     public static void configureWrapperObjects(String pathToDir, boolean isAutomate) {
-        DataController.createWrapperObjects(pathToDir, isAutomate);
+        DataController.createWrapperObjects(pathToDir + "/fast5/", isAutomate);
+    }
+
+    public static void clearWrapperObjects() {
+        DataController.clearWrapperObjects();
     }
 
     public static void runServer() {
-        isLive = true;
         try {
             serverSocket = new ServerSocket(6677);
             new Thread(() -> {
-                while (isLive) {
+                while (!serverSocket.isClosed()) {
                     try {
                         //Establishes connection
-                        if (serverSocket.isClosed()) {
-                            isLive = false;
-                        } else {
-                            Socket socket = serverSocket.accept();
-                            System.out.println("A client is connected: " + socket.getLocalSocketAddress());
-                            ObjectInputStream objectInStream = null;
-                            objectInStream = new ObjectInputStream(socket.getInputStream());
-                            if (objectInStream.available() == 0) {
-                                WrapperObject clientMessage = (WrapperObject) objectInStream.readObject();
-                                System.out.println("From client= " + clientMessage.toString());
+                        Socket socket = serverSocket.accept();
+                        System.out.println("A client is connected: " + socket.getLocalSocketAddress());
+                        ObjectInputStream objectInStream = null;
+                        objectInStream = new ObjectInputStream(socket.getInputStream());
+                        if (objectInStream.available() == 0) {
+                            WrapperObject clientMessage = (WrapperObject) objectInStream.readObject();
+                            System.out.println("From client= " + clientMessage.toString());
 
-                                ObjectOutputStream objectOutStream = new ObjectOutputStream(socket.getOutputStream());
-                                WrapperObject replyObject = new WrapperObject();
-                                replyObject.setState(State.ACK);
-                                sendMessageToClient(replyObject, objectOutStream);
+                            ObjectOutputStream objectOutStream = new ObjectOutputStream(socket.getOutputStream());
+                            WrapperObject replyObject = new WrapperObject();
+                            replyObject.setState(State.ACK);
+                            sendMessageToClient(replyObject, objectOutStream);
 
-                                if (clientMessage.getState().equals(State.REQUEST)) {
-                                    Response<Boolean, Object> response = allocateJobToClient(objectOutStream, socket.getInetAddress().toString());
-                                    WrapperObject receivedObject = (WrapperObject) response.message;
-                                    DataController.updateGrids(receivedObject);
-                                }
-                                if (clientMessage.getState().equals(State.COMPLETED)) {
-                                    WrapperObject receivedObject = receiveMessageFromClient(objectInStream);
-                                    DataController.updateGrids(receivedObject);
-                                }
-                                objectOutStream.close();
+                            if (clientMessage.getState().equals(State.REQUEST)) {
+                                Response<Boolean, Object> response = allocateJobToClient(objectOutStream, socket.getInetAddress().toString());
+                                WrapperObject receivedObject = (WrapperObject) response.message;
+                                DataController.updateGrids(receivedObject);
                             }
-                            objectInStream.close();
+                            if (clientMessage.getState().equals(State.COMPLETED)) {
+                                WrapperObject receivedObject = receiveMessageFromClient(objectInStream);
+                                DataController.updateGrids(receivedObject);
+                            }
+                            objectOutStream.close();
                         }
+                        objectInStream.close();
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -146,6 +144,7 @@ public class UIController {
 
     public static void stopServer() {
         try {
+            //ToDo catch exceptions
             serverSocket.close();
         } catch (IOException e) {
             e.printStackTrace();
@@ -187,29 +186,5 @@ public class UIController {
             e.printStackTrace();
             return new Response<>(false, ErrorMessage.COMM_FAIL);
         }
-    }
-
-
-    public static String getLocalIPAddress() {
-        String ip = "127.0.0.1";
-        try {
-            Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
-            while (interfaces.hasMoreElements()) {
-                NetworkInterface iface = interfaces.nextElement();
-                if (iface.isLoopback() || !iface.isUp())
-                    continue;
-                Enumeration<InetAddress> addresses = iface.getInetAddresses();
-                while (addresses.hasMoreElements()) {
-                    InetAddress addr = addresses.nextElement();
-                    // *EDIT*
-                    if (addr instanceof Inet6Address) continue;
-
-                    ip = addr.getHostAddress();
-                }
-            }
-        } catch (SocketException e) {
-            throw new RuntimeException(e);
-        }
-        return ip;
     }
 }
