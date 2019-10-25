@@ -92,7 +92,7 @@ public class MyUI extends UI {
                     UIController.configureWrapperObjects(dataPathInput.getValue().trim(), automateListingCheck.getValue());
                     createGrids();
                     UIController.runServer();
-                    //FileServer.startFileServer(5050, dataPathInput.getValue().trim());
+                    FileServer.startFileServer(5050, dataPathInput.getValue().trim());
                     event.getButton().setCaption("Stop Server");
                     automateListingCheck.setEnabled(false);
                     pipelineComponentsLayout.setEnabled(false);
