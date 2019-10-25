@@ -17,11 +17,13 @@ This is a job server to distribute sequencing tasks among portable devices that 
 
 **4) Open [localhost](http://localhost:8080/) in any web browser.**
 
+### Flowchart
+![Diagram](https://github.com/hiruna72/f5n_server/blob/master/f5n_server_flow_chart.png)
+
 ### Network
 The source code for the Mobile Application can be found [here](https://github.com/SanojPunchihewa/f5n) 
 
 ![Diagram](https://github.com/hiruna72/f5n/blob/master/server_mobile_connection.png)
-
 
 ### To Do
 - stop server & reconfiguration pipeline components
