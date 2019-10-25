@@ -1,7 +1,7 @@
-# f5n_server
-This is a job server to distribute and keep track of f5n pipeline jobs to connected f5n clients
+## f5n_server
+This is a job server to distribute sequencing tasks among portable devices that run [f5n](https://github.com/SanojPunchihewa/f5n)
 
-## Instructions to deploy server
+### Instructions to deploy server
 
 **1) Clone the repository**
 
@@ -17,6 +17,12 @@ This is a job server to distribute and keep track of f5n pipeline jobs to connec
 
 **4) Open [localhost](http://localhost:8080/) in any web browser.**
 
-## To Do
+### Network
+The source code for the Mobile Application can be found [here](https://github.com/SanojPunchihewa/f5n) 
+
+![Diagram](https://github.com/hiruna72/f5n/blob/master/server_mobile_connection.png)
+
+
+### To Do
 - stop server & reconfiguration pipeline components
 - data set update listner
