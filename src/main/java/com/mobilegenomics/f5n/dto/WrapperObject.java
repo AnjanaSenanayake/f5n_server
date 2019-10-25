@@ -1,6 +1,6 @@
 package com.mobilegenomics.f5n.dto;
 
-import com.mobilegenomics.f5n.core.PipelineComponent;
+import com.mobilegenomics.f5n.core.Step;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -12,15 +12,16 @@ public class WrapperObject implements Serializable {
     private State state;
     private String clientIP;
     private String pathToDataDir;
-    private ArrayList<PipelineComponent> pipelineComponents = new ArrayList<>();
+    private ArrayList<Step> steps = new ArrayList<>();
 
-    public WrapperObject() {}
+    public WrapperObject() {
+    }
 
-    public WrapperObject(String prefix, State state, String pathToDataDir, ArrayList<PipelineComponent> pipelineComponents) {
+    public WrapperObject(String prefix, State state, String pathToDataDir, ArrayList<Step> steps) {
         this.prefix = prefix;
         this.state = state;
         this.pathToDataDir = pathToDataDir;
-        this.pipelineComponents = pipelineComponents;
+        this.steps = steps;
     }
 
     public String getPrefix() {
@@ -47,19 +48,27 @@ public class WrapperObject implements Serializable {
         this.state = state;
     }
 
-    public ArrayList<PipelineComponent> getPipelineComponents() {
-        return pipelineComponents;
+    public String getPathToDataDir() {
+        return pathToDataDir;
     }
 
-    public void setPipelineComponents(ArrayList<PipelineComponent> pipelineComponents) {
-        this.pipelineComponents = pipelineComponents;
+    public void setPathToDataDir(String pathToDataDir) {
+        this.pathToDataDir = pathToDataDir;
     }
 
-    public String listToString(ArrayList<PipelineComponent> pipelineComponentsList ) {
+    public ArrayList<Step> getSteps() {
+        return steps;
+    }
+
+    public void setSteps(ArrayList<Step> steps) {
+        this.steps = steps;
+    }
+
+    private String listToString(ArrayList<Step> steps) {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("[");
-        for (PipelineComponent pipelineComponents : pipelineComponentsList) {
-            stringBuilder.append(pipelineComponents.toString());
+        for (Step step : steps) {
+            stringBuilder.append(step.getCommandString());
             stringBuilder.append(", ");
         }
         stringBuilder.append("]");
@@ -70,17 +79,17 @@ public class WrapperObject implements Serializable {
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("{State=" + state);
-        if(pipelineComponents != null && !pipelineComponents.isEmpty()) {
-            stringBuilder.append(", Pipeline Components=" + listToString(pipelineComponents));
+        if (steps != null && !steps.isEmpty()) {
+            stringBuilder.append(", Pipeline Steps=" + listToString(steps));
         }
         stringBuilder.append("}");
         return stringBuilder.toString();
     }
 
-    public String listToStringPretty(ArrayList<PipelineComponent> pipelineComponentsList ) {
+    private String listToStringPretty(ArrayList<Step> steps) {
         StringBuilder stringBuilder = new StringBuilder();
-        for (PipelineComponent pipelineComponents : pipelineComponentsList) {
-            stringBuilder.append(pipelineComponents.toString());
+        for (Step step : steps) {
+            stringBuilder.append(step.getCommandString());
             stringBuilder.append("\n");
         }
         return stringBuilder.toString();
@@ -88,9 +97,10 @@ public class WrapperObject implements Serializable {
 
     public String toStringPretty() {
         StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("\n");
         stringBuilder.append("#######################################\n");
         stringBuilder.append("State : " + state);
-        stringBuilder.append("\nPipeline Components : " + listToStringPretty(pipelineComponents));
+        stringBuilder.append("\nPipeline Steps : " + listToStringPretty(steps));
         stringBuilder.append("#######################################\n");
         return stringBuilder.toString();
     }

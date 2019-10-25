@@ -5,7 +5,6 @@ import com.mobilegenomics.f5n.controller.UIController;
 import com.mobilegenomics.f5n.core.Argument;
 import com.mobilegenomics.f5n.dto.State;
 import com.mobilegenomics.f5n.dto.WrapperObject;
-
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.VaadinServletConfiguration;
 import com.vaadin.icons.VaadinIcons;
@@ -30,8 +29,8 @@ public class MyUI extends UI {
 
     private VerticalLayout rootLayout;
     private TextField dataPathInput;
-
-    private  TabSheet pipelineComponentsLayout;
+    private TabSheet pipelineComponentsLayout;
+    private HorizontalLayout gridLayout;
 
     @Override
     protected void init(VaadinRequest vaadinRequest) {
@@ -52,81 +51,102 @@ public class MyUI extends UI {
         try {
             inetAddress = InetAddress.getLocalHost();
             Label networkHostLabel = new Label();
-            networkHostLabel.setValue("Host Name: " + inetAddress.getHostName()+" IP Address: "+ UIController.getLocalIPAddress());
+            networkHostLabel.setValue("Host Name: " + inetAddress.getHostName() + " IP Address: " + UIController.getLocalIPAddress());
             networkHostLabel.addStyleName(ValoTheme.LABEL_H3);
             rootLayout.addComponent(networkHostLabel, 1);
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
 
-        dataPathSetter();
+        dataPathSetterLayout();
         generatePipelineComponentsLayout();
 
         setContent(rootLayout);
     }
 
-    private void generatePipelineComponentsLayout(){
-
-        pipelineComponentsLayout = new TabSheet();
-        pipelineComponentsLayout.setHeight(100.0f, Unit.PERCENTAGE);
-        pipelineComponentsLayout.addStyleName(ValoTheme.TABSHEET_FRAMED);
-        pipelineComponentsLayout.addStyleName(ValoTheme.TABSHEET_PADDED_TABBAR);
+    private void generatePipelineComponentsLayout() {
 
         Label checkBoxGroupLabel = new Label();
         checkBoxGroupLabel.setValue("Select Pipeline Components");
         checkBoxGroupLabel.addStyleName(ValoTheme.LABEL_LARGE);
         checkBoxGroupLabel.addStyleName(ValoTheme.LABEL_NO_MARGIN);
 
+        pipelineComponentsLayout = new TabSheet();
+        pipelineComponentsLayout.setHeight(100.0f, Unit.PERCENTAGE);
+        pipelineComponentsLayout.addStyleName(ValoTheme.TABSHEET_FRAMED);
+        pipelineComponentsLayout.addStyleName(ValoTheme.TABSHEET_PADDED_TABBAR);
         CheckBoxGroup<String> pipelineComponentsCheckGroup = new CheckBoxGroup<>("Select components");
         pipelineComponentsCheckGroup.setItems("MINIMAP2_SEQUENCE_ALIGNMENT", "SAMTOOL_SORT", "SAMTOOL_INDEX", "F5C_INDEX", "F5C_CALL_METHYLATION", "F5C_EVENT_ALIGNMENT");
         pipelineComponentsCheckGroup.addStyleName(ValoTheme.CHECKBOX_LARGE);
-
         pipelineComponentsLayout.addTab(pipelineComponentsCheckGroup, "Components List");
 
         HorizontalLayout btnLayout = new HorizontalLayout();
 
+        Button btnStartServer = new Button("Start Server");
+        btnStartServer.setEnabled(false);
+        btnStartServer.addClickListener(event -> {
+            if (event.getButton().getCaption().equals("Start Server")) {
+                UIController.runServer();
+                event.getButton().setCaption("Stop Server");
+                pipelineComponentsLayout.setEnabled(false);
+            } else {
+                UIController.stopServer();
+                event.getButton().setCaption("Start Server");
+                pipelineComponentsLayout.setEnabled(true);
+            }
+        });
+
         VerticalLayout layoutGenerateJobs = new VerticalLayout();
         Button btnGenerateJobs = new Button("Generate Job List");
         CheckBox automateListingCheck = new CheckBox("Automate Listing");
-        //btnGenerateJobs.setEnabled(false);
+        btnGenerateJobs.setEnabled(false);
+        automateListingCheck.setEnabled(false);
         btnGenerateJobs.setDisableOnClick(true);
 
         btnGenerateJobs.addClickListener(event -> {
-            UIController.configurePipelineComponents(pipelineComponentsLayout);
-            UIController.configureWrapperObjects(dataPathInput.getValue());
-            createGrids();
+            if (dataPathInput.getValue() != null && !dataPathInput.isEmpty()) {
+                UIController.configurePipelineComponents(pipelineComponentsLayout);
+                UIController.configureWrapperObjects(dataPathInput.getValue(), automateListingCheck.getValue());
+                createGrids();
+                automateListingCheck.setEnabled(false);
+                btnStartServer.setEnabled(true);
+            } else {
+                dataPathInput.focus();
+            }
         });
         layoutGenerateJobs.addComponents(btnGenerateJobs, automateListingCheck);
         layoutGenerateJobs.setMargin(false);
 
-        Button btnStartServer = new Button("Start Server");
-        btnStartServer.addClickListener(event -> {
-            UIController.runServer();
-        });
         btnLayout.addComponents(layoutGenerateJobs, btnStartServer);
 
         pipelineComponentsCheckGroup.addValueChangeListener(event -> {
-
-            if(!event.getValue().isEmpty()) {
+            if (gridLayout != null)
+                rootLayout.removeComponent(gridLayout);
+            if (!event.getValue().isEmpty()) {
                 btnGenerateJobs.setEnabled(true);
+                automateListingCheck.setEnabled(true);
+                DataController.fileDirMonitorDetach();
                 pipelineComponentsLayout.removeAllComponents();
                 UIController.eraseSelectedPipelineSteps();
                 UIController.getComponentsNameList();
                 DataController.getFilePrefixes().clear();
                 UIController.addPipelineSteps(pipelineComponentsCheckGroup.getSelectedItems());
                 pipelineComponentsLayout.addTab(pipelineComponentsCheckGroup, "Components List");
-                for(String componentName : event.getValue()) {
+                for (String componentName : event.getValue()) {
                     generatePipelineComponentArgumentLayout(pipelineComponentsLayout, componentName);
                     UIController.setComponentsNames(componentName);
                 }
             } else {
-                //btnGenerateJobs.setEnabled(false);
+                btnGenerateJobs.setEnabled(false);
+                automateListingCheck.setEnabled(false);
                 pipelineComponentsLayout.removeAllComponents();
                 pipelineComponentsLayout.addTab(pipelineComponentsCheckGroup, "Components List");
             }
+            btnStartServer.setEnabled(false);
         });
 
-        rootLayout.addComponents(checkBoxGroupLabel, pipelineComponentsLayout, btnLayout);
+        rootLayout.addComponents(checkBoxGroupLabel, pipelineComponentsLayout);
+        rootLayout.addComponent(btnLayout);
     }
 
     private void generatePipelineComponentArgumentLayout(TabSheet pipelineComponentsLayout, String componentName) {
@@ -134,23 +154,26 @@ public class MyUI extends UI {
         tabLayout.setMargin(true);
         for (Argument argument : UIController.getSteps().get(componentName).getArguments()) {
 
-            if(!argument.isRequired()) {
-                CheckBox checkBox = new CheckBox(argument.getArgName());
-                checkBox.setId("checkbox_" + argument.getArgName());
-                tabLayout.addComponent(checkBox);
-                if (!argument.isFlagOnly()) {
-                    TextField argumentInput = new TextField(argument.getArgName());
-                    argumentInput.setId("textfield_" + argument.getArgName());
-                    if(argument.getArgValue() != null)
-                        argumentInput.setValue(argument.getArgValue());
-                    tabLayout.addComponent(argumentInput);
+            CheckBox checkBox = new CheckBox(argument.getArgName());
+            checkBox.setId("checkbox_" + argument.getArgName());
+            tabLayout.addComponent(checkBox);
+            if (!argument.isFlagOnly()) {
+                TextField argumentInput = new TextField(argument.getArgName());
+                argumentInput.setId("textfield_" + argument.getArgName());
+                if(argument.isRequired()) {
+                    checkBox.setValue(true);
+                    checkBox.setEnabled(false);
+                    argumentInput.setRequiredIndicatorVisible(true);
                 }
+                if (argument.getArgValue() != null)
+                    argumentInput.setValue(argument.getArgValue());
+                tabLayout.addComponent(argumentInput);
             }
         }
         pipelineComponentsLayout.addTab(tabLayout, componentName);
     }
 
-    private void dataPathSetter() {
+    private void dataPathSetterLayout() {
         FormLayout formFilePath = new FormLayout();
 
         dataPathInput = new TextField("Data Set Path: ");
@@ -164,7 +187,7 @@ public class MyUI extends UI {
     }
 
     private void createGrids() {
-        HorizontalLayout horizontalLayout = new HorizontalLayout();
+        gridLayout = new HorizontalLayout();
 
         Grid<WrapperObject> gridIdleJobs = new Grid<>();
         gridIdleJobs.setCaption("Unallocated Jobs");
@@ -183,8 +206,8 @@ public class MyUI extends UI {
         gridAllocatedJobs.setSizeFull();
         gridAllocatedJobs.addStyleName(ValoTheme.TABLE_NO_VERTICAL_LINES);
 
-        horizontalLayout.addComponentsAndExpand(gridIdleJobs, gridAllocatedJobs);
-        rootLayout.addComponentsAndExpand(horizontalLayout);
+        gridLayout.addComponentsAndExpand(gridIdleJobs, gridAllocatedJobs);
+        rootLayout.addComponent(gridLayout);
     }
 
     @WebServlet(urlPatterns = "/*", name = "MyUIServlet", asyncSupported = true)

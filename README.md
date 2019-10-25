@@ -32,6 +32,9 @@ Since client-server communication happens only when a job is requested or to get
 #### Flexible File Listener
 minIT is changing their output file format continuously. Hence we advice the user to alter the [code](https://github.com/AnjanaSenanayake/f5n_server/blob/106df454fe39f6873115e5e43c196021a847aa99/src/main/java/com/mobilegenomics/f5n/controller/DataController.java#L50) to cater for different scenarios.
 
-### To Do
-- stop server & reconfiguration pipeline components
-- data set update listner
+## To Do
+- [x] stop server & reconfiguration pipeline components
+- [x] data set update listner
+- [ ] pipeline configuration form validations
+- [ ] user messages/warnings/errors to frontend
+

@@ -1,8 +1,14 @@
 package com.mobilegenomics.f5n.controller;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.mobilegenomics.f5n.core.Argument;
 import com.mobilegenomics.f5n.core.PipelineComponent;
 import com.mobilegenomics.f5n.core.PipelineStep;
 import com.mobilegenomics.f5n.core.Step;
+import com.mobilegenomics.f5n.support.JSONFileHelper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,10 +42,49 @@ public class CoreController {
     static void configureSteps() {
         steps = new HashMap<>();
         for (PipelineStep pipelineStep : selectedPipelineSteps) {
-            Step step = new Step();
-            step.setStep(pipelineStep);
+            ArrayList<Argument> arguments = configureArguments(pipelineStep);
+            Step step = new Step(pipelineStep, arguments);
             steps.put(pipelineStep.name(), step);
         }
+    }
+
+    private static ArrayList<Argument> configureArguments(PipelineStep pipelineStep) {
+        String rawFile = null;
+        switch (pipelineStep) {
+            case MINIMAP2_SEQUENCE_ALIGNMENT:
+                rawFile = "minimap2.json";
+                break;
+            case SAMTOOL_SORT:
+                rawFile = "samtool_sort_arguments.json";
+                break;
+            case SAMTOOL_INDEX:
+                rawFile = "samtool_index_arguments.json";
+                break;
+            case F5C_INDEX:
+                rawFile = "f5c_index_arguments.json";
+                break;
+            case F5C_CALL_METHYLATION:
+                rawFile = "f5c_call_methylation_arguments.json";
+                break;
+            case F5C_EVENT_ALIGNMENT:
+                rawFile = "f5c_event_align_arguments.json";
+                break;
+            default:
+                System.err.println("Invalid Pipeline Step");
+                break;
+        }
+        return buildArgumentsFromJson(rawFile);
+    }
+
+    private static ArrayList<Argument> buildArgumentsFromJson(String fileName) {
+        ArrayList<Argument> arguments = new ArrayList<>();
+        JsonObject argsJson = JSONFileHelper.rawtoJsonObject(fileName);
+        JsonArray argsJsonArray = argsJson.getAsJsonArray("args");
+        for (JsonElement element : argsJsonArray) {
+            Argument argument = new Gson().fromJson(element, Argument.class);
+            arguments.add(argument);
+        }
+        return arguments;
     }
 
     static void buildCommandString() {
