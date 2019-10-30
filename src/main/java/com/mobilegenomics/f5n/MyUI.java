@@ -30,6 +30,7 @@ public class MyUI extends UI {
 
     private VerticalLayout rootLayout;
     private TextField dataPathInput;
+    public static Label averageProcessingTimeLabel;
     private TabSheet pipelineComponentsLayout;
     private HorizontalLayout gridLayout;
 
@@ -92,7 +93,7 @@ public class MyUI extends UI {
                     UIController.configureWrapperObjects(dataPathInput.getValue().trim(), automateListingCheck.getValue());
                     createGrids();
                     UIController.runServer();
-                    FileServer.startFileServer(5050, dataPathInput.getValue().trim());
+                    FileServer.startFileServer(8000, dataPathInput.getValue().trim());
                     event.getButton().setCaption("Stop Server");
                     automateListingCheck.setEnabled(false);
                     pipelineComponentsLayout.setEnabled(false);
@@ -112,7 +113,10 @@ public class MyUI extends UI {
             }
         });
 
-        btnLayout.addComponents(btnStartServer, automateListingCheck);
+        averageProcessingTimeLabel = new Label();
+        averageProcessingTimeLabel.setCaption("Average Processing Time:");
+        averageProcessingTimeLabel.setValue("0");
+        btnLayout.addComponentsAndExpand(btnStartServer, automateListingCheck, averageProcessingTimeLabel);
 
         pipelineComponentsCheckGroup.addValueChangeListener(event -> {
             if (gridLayout != null)
@@ -211,6 +215,28 @@ public class MyUI extends UI {
         gridAllocatedJobs.addColumn(WrapperObject::getPrefix).setCaption("Job ID");
         gridAllocatedJobs.addColumn(WrapperObject::getState).setCaption("State");
         gridAllocatedJobs.addColumn(WrapperObject::getClientIP).setCaption("Client IP");
+
+        gridAllocatedJobs.addComponentColumn(wrapper -> {
+            Button button = new Button();
+            button.setCaption("Summery");
+            button.addClickListener(event -> {
+                if (wrapper.getState() == State.SUCCESS) {
+                    Window window = new Window();
+                    window.setWidth("600px");
+                    window.setHeight("400px");
+                    Label label = new Label();
+                    label.setValue(wrapper.getResultSummery());
+                    window.setContent(label);
+                    addWindow(window);
+                } else {
+                    Notification.show("Summery",
+                            "Job result is pending",
+                            Notification.Type.HUMANIZED_MESSAGE);
+                }
+            });
+            return button;
+        }).setCaption("Summery");
+
         gridAllocatedJobs.setSizeFull();
         gridAllocatedJobs.addStyleName(ValoTheme.TABLE_NO_VERTICAL_LINES);
 

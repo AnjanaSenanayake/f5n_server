@@ -1,5 +1,6 @@
 package com.mobilegenomics.f5n.controller;
 
+import com.mobilegenomics.f5n.MyUI;
 import com.mobilegenomics.f5n.core.Argument;
 import com.mobilegenomics.f5n.core.PipelineStep;
 import com.mobilegenomics.f5n.core.Step;
@@ -7,6 +8,7 @@ import com.mobilegenomics.f5n.dto.ErrorMessage;
 import com.mobilegenomics.f5n.dto.Response;
 import com.mobilegenomics.f5n.dto.State;
 import com.mobilegenomics.f5n.dto.WrapperObject;
+import com.mobilegenomics.f5n.support.FileServer;
 import com.vaadin.ui.*;
 
 import java.io.IOException;
@@ -16,6 +18,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Set;
 
 public class UIController {
@@ -93,7 +96,7 @@ public class UIController {
     }
 
     public static void configureWrapperObjects(String pathToDir, boolean isAutomate) {
-        DataController.createWrapperObjects(pathToDir + "/fast5/", isAutomate);
+        DataController.createWrapperObjects(pathToDir, isAutomate);
     }
 
     public static void clearWrapperObjects() {
@@ -121,13 +124,18 @@ public class UIController {
                             sendMessageToClient(replyObject, objectOutStream);
 
                             if (clientMessage.getState().equals(State.REQUEST)) {
+                                assessTimedOutJobs();
                                 Response<Boolean, Object> response = allocateJobToClient(objectOutStream, socket.getInetAddress().toString());
-                                WrapperObject receivedObject = (WrapperObject) response.message;
-                                DataController.updateGrids(receivedObject);
+                                WrapperObject sentJobObject = (WrapperObject) response.message;
+                                DataController.updateGrids(sentJobObject);
                             }
                             if (clientMessage.getState().equals(State.COMPLETED)) {
                                 WrapperObject receivedObject = receiveMessageFromClient(objectInStream);
+                                receivedObject.setCollectTime(System.currentTimeMillis());
                                 DataController.updateGrids(receivedObject);
+                                DataController.configureJobProcessTime(receivedObject);
+                                MyUI.averageProcessingTimeLabel.setValue(String.valueOf(DataController.getAverageProcessingTime() + "s"));
+                                System.out.println("Average Processing Time: " + DataController.getAverageProcessingTime() + " s");
                             }
                             objectOutStream.close();
                         }
@@ -146,6 +154,7 @@ public class UIController {
         try {
             //ToDo catch exceptions
             serverSocket.close();
+            FileServer.serverSocket.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -173,18 +182,37 @@ public class UIController {
     }
 
     private static Response<Boolean, Object> allocateJobToClient(ObjectOutputStream objectOutStream, String clientAddress) {
-        WrapperObject wrapperObject = DataController.getIdleWrapperObjectList().get(0);
         try {
+            WrapperObject wrapperObject = DataController.getIdleWrapperObjectList().get(0);
             wrapperObject.setState(State.PENDING);
             wrapperObject.setClientIP(clientAddress);
+            wrapperObject.setReleaseTime(System.currentTimeMillis());
             objectOutStream.writeObject(wrapperObject);
             objectOutStream.flush();
             DataController.getIdleWrapperObjectList().removeIf(item -> (item.getPrefix().equals(wrapperObject.getPrefix())));
-            System.out.println("To client= " + wrapperObject.toString());
+            System.out.println("To client" +
+                    " = " + wrapperObject.toString());
             return new Response<>(true, wrapperObject);
-        } catch (IOException e) {
+        } catch (IOException | IndexOutOfBoundsException e) {
             e.printStackTrace();
             return new Response<>(false, ErrorMessage.COMM_FAIL);
+        }
+    }
+
+    private static void assessTimedOutJobs() {
+        Long elapsedTime = 0L;
+        ArrayList<WrapperObject> list = DataController.getPendingWrapperObjectList();
+        Iterator<WrapperObject> iterator = list.iterator();
+        while (iterator.hasNext()) {
+            WrapperObject wrapperObject = iterator.next();
+            if(wrapperObject.getState() == State.PENDING) {
+                elapsedTime = (System.currentTimeMillis() - wrapperObject.getReleaseTime())/1000;
+                if (elapsedTime > DataController.getAverageProcessingTime()) {
+                    iterator.remove();
+                    wrapperObject.setState(State.IDLE);
+                    DataController.idleListDataProvider.getItems().add(wrapperObject);
+                }
+            }
         }
     }
 }

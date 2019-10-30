@@ -20,11 +20,14 @@ public class DataController {
 
     static ListDataProvider<WrapperObject> idleListDataProvider;
     static ListDataProvider<WrapperObject> busyListDataProvider;
+    private static Long accumulatedJobProcessTime = 0L;
+    private static Long averageProcessingTime = 0L;
+    private static Long successJobs = 0L;
     private static Thread fileMonitorThread = null;
     private static WrapperObject[] wrapperObjectsArray;
     private static ArrayList<WrapperObject> idleWrapperObjectList;
     private static ArrayList<WrapperObject> pendingWrapperObjectList;
-    private static String SPLITTER = ".tar";
+    private static String SPLITTER = ".zip";
     private static ArrayList<String> filePrefixes = new ArrayList<>();
     private static WatchService watchService;
 
@@ -72,7 +75,7 @@ public class DataController {
                     while ((key = watchService.take()) != null) {
                         for (WatchEvent<?> event : key.pollEvents()) {
                             String file = event.context().toString();
-                            String prefix = file.split(".tar")[0];
+                            String prefix = file.split(SPLITTER)[0];
                             System.out.println("Event kind:" + event.kind() + ". File affected: " + file);
                             filePrefixes.add(prefix);
                             ArrayList<Step> steps = new ArrayList<>(CoreController.getSteps().values());
@@ -124,8 +127,11 @@ public class DataController {
             DataController.idleListDataProvider.getItems().remove(object);
             DataController.busyListDataProvider.getItems().add(object);
         } else if (object.getState().equals(State.SUCCESS)) {
-            DataController.busyListDataProvider.getItems().removeIf(item -> (item.getPrefix().equals(object.getPrefix())));
-            DataController.busyListDataProvider.getItems().add(object);
+            boolean isValidClient = DataController.busyListDataProvider.getItems().removeIf(item ->
+                    (item.getPrefix().equals(object.getPrefix()) && item.getClientIP().equals(object.getClientIP())));
+            if (isValidClient) {
+                DataController.busyListDataProvider.getItems().add(object);
+            }
         }
         refreshGrids();
     }
@@ -149,6 +155,32 @@ public class DataController {
 
     public static ArrayList<WrapperObject> getPendingWrapperObjectList() {
         return pendingWrapperObjectList;
+    }
+
+    public static void configureJobProcessTime(WrapperObject wrapperObject) {
+        calculateAccumulateJobProcessTime(wrapperObject);
+        incrementSuccessJobs();
+        calculateAverageJobProcessingTime();
+    }
+
+    public static void calculateAccumulateJobProcessTime(WrapperObject wrapperObject) {
+        accumulatedJobProcessTime = accumulatedJobProcessTime + (wrapperObject.getCollectTime() - wrapperObject.getReleaseTime());
+    }
+
+    public static void calculateAverageJobProcessingTime() {
+        averageProcessingTime = accumulatedJobProcessTime / successJobs;
+    }
+
+    public static Long getAverageProcessingTime() {
+        return averageProcessingTime / 1000;
+    }
+
+    public static void incrementSuccessJobs() {
+        successJobs = successJobs + 1;
+    }
+
+    public static void decrementSuccessJobs() {
+        successJobs = successJobs - 1;
     }
 
     public static String getLocalIPAddress() {

@@ -12,6 +12,9 @@ public class WrapperObject implements Serializable {
     private State state;
     private String clientIP;
     private String pathToDataDir;
+    private String resultSummery;
+    private Long releaseTime;
+    private Long collectTime;
     private ArrayList<Step> steps = new ArrayList<>();
 
     public WrapperObject() {
@@ -56,12 +59,36 @@ public class WrapperObject implements Serializable {
         this.pathToDataDir = pathToDataDir;
     }
 
+    public String getResultSummery() {
+        return resultSummery;
+    }
+
+    public void setResultSummery(String resultSummery) {
+        this.resultSummery = resultSummery;
+    }
+
     public ArrayList<Step> getSteps() {
         return steps;
     }
 
     public void setSteps(ArrayList<Step> steps) {
         this.steps = steps;
+    }
+
+    public Long getReleaseTime() {
+        return releaseTime;
+    }
+
+    public void setReleaseTime(Long releaseTime) {
+        this.releaseTime = releaseTime;
+    }
+
+    public Long getCollectTime() {
+        return collectTime;
+    }
+
+    public void setCollectTime(Long collectTime) {
+        this.collectTime = collectTime;
     }
 
     private String listToString(ArrayList<Step> steps) {
