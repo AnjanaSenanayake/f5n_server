@@ -154,7 +154,7 @@ public class UIController {
         try {
             //ToDo catch exceptions
             serverSocket.close();
-            FileServer.serverSocket.close();
+            FileServer.stopFileServer();
         } catch (IOException e) {
             e.printStackTrace();
         }

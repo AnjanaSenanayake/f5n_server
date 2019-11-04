@@ -93,7 +93,7 @@ public class MyUI extends UI {
                     UIController.configureWrapperObjects(dataPathInput.getValue().trim(), automateListingCheck.getValue());
                     createGrids();
                     UIController.runServer();
-                    FileServer.startFileServer(8000, dataPathInput.getValue().trim());
+                    FileServer.startFTPServer(8000, dataPathInput.getValue().trim());
                     event.getButton().setCaption("Stop Server");
                     automateListingCheck.setEnabled(false);
                     pipelineComponentsLayout.setEnabled(false);
@@ -226,6 +226,7 @@ public class MyUI extends UI {
                     window.setHeight("400px");
                     Label label = new Label();
                     label.setValue(wrapper.getResultSummery());
+                    label.setWidth("600px");
                     window.setContent(label);
                     addWindow(window);
                 } else {
