@@ -17,9 +17,9 @@ import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.TreeMap;
 
 public class UIController {
 
@@ -42,13 +42,13 @@ public class UIController {
         CoreController.eraseSelectedPipeline();
     }
 
-    public static HashMap<String, Step> getSteps() {
+    public static TreeMap<Integer, Step> getSteps() {
         return CoreController.getSteps();
     }
 
     public static void configurePipelineComponents(TabSheet pipelineComponentsLayout) {
         for (String componentName : componentsNameList) {
-            arguments = UIController.getSteps().get(componentName).getArguments();
+            arguments = UIController.getSteps().get(PipelineStep.valueOf(componentName).getValue()).getArguments();
             //CheckBox checkBox_prepend = (CheckBox) findComponentById(pipelineComponentsLayout, componentName + "_checkbox_prepend" + componentName);
             for (Argument argument : arguments) {
                 CheckBox checkBox = (CheckBox) findComponentById(pipelineComponentsLayout, componentName + "_checkbox_" + argument.getArgName());
@@ -60,7 +60,7 @@ public class UIController {
                     }
                 } else {
                     if (checkBox.getValue() != null && !checkBox.isEmpty()) {
-                        argument.setArgValue(checkBox.getValue().toString());
+                        //argument.setArgValue(checkBox.getValue().toString());
                         argument.setSetByUser(true);
                     }
                 }
@@ -134,7 +134,7 @@ public class UIController {
                                 receivedObject.setCollectTime(System.currentTimeMillis());
                                 DataController.updateGrids(receivedObject);
                                 DataController.configureJobProcessTime(receivedObject);
-                                MyUI.averageProcessingTimeLabel.setValue(String.valueOf(DataController.getAverageProcessingTime() + "s"));
+                                MyUI.averageProcessingTimeLabel.setValue(DataController.getAverageProcessingTime() + "s");
                                 System.out.println("Average Processing Time: " + DataController.getAverageProcessingTime() + " s");
                             }
                             objectOutStream.close();
@@ -205,9 +205,9 @@ public class UIController {
         Iterator<WrapperObject> iterator = list.iterator();
         while (iterator.hasNext()) {
             WrapperObject wrapperObject = iterator.next();
-            if(wrapperObject.getState() == State.PENDING) {
-                elapsedTime = (System.currentTimeMillis() - wrapperObject.getReleaseTime())/1000;
-                if (elapsedTime > DataController.getAverageProcessingTime()) {
+            if (wrapperObject.getState() == State.PENDING) {
+                elapsedTime = (System.currentTimeMillis() - wrapperObject.getReleaseTime()) / 1000;
+                if (elapsedTime > DataController.getProcessingTime()) {
                     iterator.remove();
                     wrapperObject.setState(State.IDLE);
                     DataController.idleListDataProvider.getItems().add(wrapperObject);

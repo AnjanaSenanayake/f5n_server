@@ -21,9 +21,10 @@ public class DataController {
     static ListDataProvider<WrapperObject> idleListDataProvider;
     static ListDataProvider<WrapperObject> busyListDataProvider;
     private static Long accumulatedJobProcessTime = 0L;
-    private static Long averageProcessingTime = 0L;
+    private static Long averageProcessingTime = 2700000L;//45 mins
+    private static Long userSetTimeout = 0L;
+    private static boolean isTimeoutSetByUser = false;
     private static Long successJobs = 0L;
-    private static Thread fileMonitorThread = null;
     private static WrapperObject[] wrapperObjectsArray;
     private static ArrayList<WrapperObject> idleWrapperObjectList;
     private static ArrayList<WrapperObject> pendingWrapperObjectList;
@@ -107,9 +108,9 @@ public class DataController {
         readFilesFromDir(pathToDir);
         idleWrapperObjectList = new ArrayList<>();
         WrapperObject newWrapperObject;
+        ArrayList<Step> steps = new ArrayList<>(CoreController.getSteps().values());
         for (String prefix : filePrefixes) {
-            ArrayList<Step> steps = new ArrayList<>(CoreController.getSteps().values());
-            newWrapperObject = new WrapperObject(prefix, State.IDLE, "http://" + getLocalIPAddress() + ":5050/", steps);
+            newWrapperObject = new WrapperObject(prefix, State.IDLE, "http://" + getLocalIPAddress() + ":8000/", steps);
             idleWrapperObjectList.add(newWrapperObject);
         }
         fileDirMonitorAttach(pathToDir, isAutomate);
@@ -173,6 +174,18 @@ public class DataController {
 
     public static Long getAverageProcessingTime() {
         return averageProcessingTime / 1000;
+    }
+
+    public static void setAverageProcessingTime(Long averageProcessingTime) {
+        DataController.averageProcessingTime = averageProcessingTime*1000;
+    }
+
+    public static Long getProcessingTime() {
+        if(!isTimeoutSetByUser) {
+            return averageProcessingTime;
+        } else {
+            return userSetTimeout;
+        }
     }
 
     public static void incrementSuccessJobs() {

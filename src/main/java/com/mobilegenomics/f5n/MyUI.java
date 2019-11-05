@@ -3,6 +3,7 @@ package com.mobilegenomics.f5n;
 import com.mobilegenomics.f5n.controller.DataController;
 import com.mobilegenomics.f5n.controller.UIController;
 import com.mobilegenomics.f5n.core.Argument;
+import com.mobilegenomics.f5n.core.PipelineStep;
 import com.mobilegenomics.f5n.dto.State;
 import com.mobilegenomics.f5n.dto.WrapperObject;
 import com.mobilegenomics.f5n.support.FileServer;
@@ -11,6 +12,7 @@ import com.vaadin.annotations.VaadinServletConfiguration;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
+import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
 
@@ -28,10 +30,12 @@ import java.net.UnknownHostException;
 @Theme("mytheme")
 public class MyUI extends UI {
 
-    private VerticalLayout rootLayout;
-    private TextField dataPathInput;
     public static Label averageProcessingTimeLabel;
+    private TextField dataPathInput;
+    private TextField timeoutInput;
     private TabSheet pipelineComponentsLayout;
+
+    private VerticalLayout rootLayout;
     private HorizontalLayout gridLayout;
 
     @Override
@@ -84,6 +88,20 @@ public class MyUI extends UI {
 
         HorizontalLayout btnLayout = new HorizontalLayout();
 
+        VerticalLayout timeoutLayout = new VerticalLayout();
+        timeoutInput = new TextField();
+        timeoutInput.setPlaceholder("Set timeout in seconds");
+        timeoutInput.setEnabled(false);
+        CheckBox userTimeoutCheck = new CheckBox("Enable Job Timeout");
+        timeoutLayout.setMargin(false);
+        timeoutLayout.addComponents(userTimeoutCheck, timeoutInput);
+        userTimeoutCheck.addValueChangeListener(event -> {
+            if (event.getValue())
+                timeoutInput.setEnabled(true);
+            else
+                timeoutInput.setEnabled(false);
+        });
+
         CheckBox automateListingCheck = new CheckBox("Automate Job Listing");
         Button btnStartServer = new Button("Start Server");
         btnStartServer.addClickListener(event -> {
@@ -92,6 +110,8 @@ public class MyUI extends UI {
                     UIController.configurePipelineComponents(pipelineComponentsLayout);
                     UIController.configureWrapperObjects(dataPathInput.getValue().trim(), automateListingCheck.getValue());
                     createGrids();
+                    if (userTimeoutCheck.getValue())
+                        DataController.setAverageProcessingTime(Long.valueOf(timeoutInput.getValue()));
                     UIController.runServer();
                     FileServer.startFTPServer(8000, dataPathInput.getValue().trim());
                     event.getButton().setCaption("Stop Server");
@@ -104,6 +124,7 @@ public class MyUI extends UI {
                     UIController.clearWrapperObjects();
                     DataController.fileDirMonitorDetach();
                     removeGrids();
+                    DataController.setAverageProcessingTime(DataController.getAverageProcessingTime());
                     event.getButton().setCaption("Start Server");
                     automateListingCheck.setEnabled(true);
                     pipelineComponentsLayout.setEnabled(true);
@@ -114,9 +135,9 @@ public class MyUI extends UI {
         });
 
         averageProcessingTimeLabel = new Label();
-        averageProcessingTimeLabel.setCaption("Average Processing Time:");
+        averageProcessingTimeLabel.setCaption("Average Processing Time");
         averageProcessingTimeLabel.setValue("0");
-        btnLayout.addComponentsAndExpand(btnStartServer, automateListingCheck, averageProcessingTimeLabel);
+        btnLayout.addComponentsAndExpand(btnStartServer, automateListingCheck, timeoutLayout, averageProcessingTimeLabel);
 
         pipelineComponentsCheckGroup.addValueChangeListener(event -> {
             if (gridLayout != null)
@@ -149,13 +170,13 @@ public class MyUI extends UI {
         CheckBox checkBox_prepend = new CheckBox("Prepend data set path to file inputs");
         checkBox_prepend.setId(componentName + "_checkbox_prepend_" + componentName);
         tabLayout.addComponent(checkBox_prepend);
-        for (Argument argument : UIController.getSteps().get(componentName).getArguments()) {
-
+        for (Argument argument : UIController.getSteps().get(PipelineStep.valueOf(componentName).getValue()).getArguments()) {
             CheckBox checkBox = new CheckBox(argument.getArgName());
             checkBox.setId(componentName + "_checkbox_" + argument.getArgName());
             tabLayout.addComponents(checkBox);
             if (!argument.isFlagOnly()) {
                 TextField argumentInput = new TextField(argument.getArgName());
+                argumentInput.setWidth("300px");
                 argumentInput.setId(componentName + "_textfield_" + argument.getArgName());
                 if (argument.isRequired()) {
                     checkBox.setValue(true);
@@ -176,7 +197,7 @@ public class MyUI extends UI {
             } else {
                 DATA_SET_PATH = "";
             }
-            for (Argument argument : UIController.getSteps().get(componentName).getArguments()) {
+            for (Argument argument : UIController.getSteps().get(PipelineStep.valueOf(componentName).getValue()).getArguments()) {
                 if (!argument.isFlagOnly() && argument.isFile()) {
                     TextField argumentInput = (TextField) UIController.findComponentById(tabLayout, componentName + "_textfield_" + argument.getArgName());
                     argumentInput.setValue(DATA_SET_PATH);
@@ -236,7 +257,7 @@ public class MyUI extends UI {
                 }
             });
             return button;
-        }).setCaption("Summery");
+        }).setCaption("Summary");
 
         gridAllocatedJobs.setSizeFull();
         gridAllocatedJobs.addStyleName(ValoTheme.TABLE_NO_VERTICAL_LINES);

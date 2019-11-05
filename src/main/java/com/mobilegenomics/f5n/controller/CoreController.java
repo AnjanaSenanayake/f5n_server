@@ -11,12 +11,12 @@ import com.mobilegenomics.f5n.core.Step;
 import com.mobilegenomics.f5n.support.JSONFileHelper;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.TreeMap;
 
 public class CoreController {
 
     private static ArrayList<PipelineStep> selectedPipelineSteps = new ArrayList<>();
-    private static HashMap<String, Step> steps = new HashMap<>();
+    private static TreeMap<Integer, Step> steps;
     private static ArrayList<PipelineComponent> pipelineComponents;
 
     private static int current = 0;
@@ -25,7 +25,7 @@ public class CoreController {
         selectedPipelineSteps.add(step);
     }
 
-    static HashMap<String, Step> getSteps() {
+    static TreeMap<Integer, Step> getSteps() {
         return steps;
     }
 
@@ -40,11 +40,11 @@ public class CoreController {
     }
 
     static void configureSteps() {
-        steps = new HashMap<>();
+        steps = new TreeMap<>();
         for (PipelineStep pipelineStep : selectedPipelineSteps) {
             ArrayList<Argument> arguments = configureArguments(pipelineStep);
             Step step = new Step(pipelineStep, arguments);
-            steps.put(pipelineStep.name(), step);
+            steps.put(pipelineStep.getValue(), step);
         }
     }
 
