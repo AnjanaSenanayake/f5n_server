@@ -246,8 +246,17 @@ public class MyUI extends UI {
                     window.setWidth("600px");
                     window.setHeight("400px");
                     Label label = new Label();
-                    label.setValue(wrapper.getResultSummery());
-                    label.setWidth("600px");
+                    label.setContentMode(ContentMode.PREFORMATTED);
+                    StringBuilder newResultSummary = new StringBuilder();
+                    newResultSummary.append(wrapper.getResultSummery());
+                    newResultSummary.append("\n");
+                    newResultSummary.append("Processed Job Prefix: " + wrapper.getPrefix());
+                    newResultSummary.append("\n");
+                    newResultSummary.append("Client Address: " + wrapper.getClientIP());
+                    newResultSummary.append("\n");
+                    Long jobProcessTime = wrapper.getCollectTime() - wrapper.getReleaseTime();
+                    newResultSummary.append("Total Job Processing Time: " + jobProcessTime + "ms");
+                    label.setValue(newResultSummary.toString());
                     window.setContent(label);
                     addWindow(window);
                 } else {
