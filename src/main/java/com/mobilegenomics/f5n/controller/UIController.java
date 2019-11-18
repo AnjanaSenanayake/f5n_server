@@ -16,10 +16,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
 
 public class UIController {
 
@@ -46,6 +43,7 @@ public class UIController {
         return CoreController.getSteps();
     }
 
+    //TODO fix format sam paf checkboxes in minmap sequence alignment
     public static void configurePipelineComponents(TabSheet pipelineComponentsLayout) {
         for (String componentName : componentsNameList) {
             arguments = UIController.getSteps().get(PipelineStep.valueOf(componentName).getValue()).getArguments();
@@ -158,6 +156,29 @@ public class UIController {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public static void startServerStatisticsCalc() {
+        DataController.calculateStats();
+
+        Timer t = new Timer();
+        t.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                DataController.calculateStats();
+                MyUI.jobCompletionRateLabel.setValue(String.valueOf(DataController.getJobCompletionRate()));
+                MyUI.jobFailureRateLabel.setValue(String.valueOf(DataController.getJobFailureRate()));
+                MyUI.newJobArrivalRateLabel.setValue(String.valueOf(DataController.getNewJobArrivalRate()));
+                MyUI.newJobRequestRateLabel.setValue(String.valueOf(DataController.getNewJobRequestRate()));
+            }
+        }, DataController.statWatchTimerInMinutes*60*1000, DataController.statWatchTimerInMinutes*60*1000);
+    }
+
+    public static void resetServerStatisticsCalc(){
+        MyUI.jobCompletionRateLabel.setValue(String.valueOf(0));
+        MyUI.jobFailureRateLabel.setValue(String.valueOf(0));
+        MyUI.newJobArrivalRateLabel.setValue(String.valueOf(0));
+        MyUI.newJobRequestRateLabel.setValue(String.valueOf(0));
     }
 
     private static void sendMessageToClient(WrapperObject wrapperObject, ObjectOutputStream objectOutStream) {

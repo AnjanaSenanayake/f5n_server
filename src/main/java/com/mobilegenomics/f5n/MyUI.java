@@ -31,6 +31,10 @@ import java.net.UnknownHostException;
 public class MyUI extends UI {
 
     public static Label averageProcessingTimeLabel;
+    public static Label jobCompletionRateLabel;
+    public static Label jobFailureRateLabel;
+    public static Label newJobArrivalRateLabel;
+    public static Label newJobRequestRateLabel;
     private TextField dataPathInput;
     private TextField timeoutInput;
     private TabSheet pipelineComponentsLayout;
@@ -66,7 +70,7 @@ public class MyUI extends UI {
 
         dataPathSetterLayout();
         generatePipelineComponentsLayout();
-
+        serverStatisticsCalcLayout();
         setContent(rootLayout);
     }
 
@@ -114,15 +118,17 @@ public class MyUI extends UI {
                         DataController.setAverageProcessingTime(Long.valueOf(timeoutInput.getValue()));
                     UIController.runServer();
                     FileServer.startFTPServer(8000, dataPathInput.getValue().trim());
+                    UIController.startServerStatisticsCalc();
                     event.getButton().setCaption("Stop Server");
                     automateListingCheck.setEnabled(false);
                     pipelineComponentsLayout.setEnabled(false);
                 } else {
                     UIController.stopServer();
-                    //FileServer.stopFileServer();
+                    FileServer.stopFileServer();
                     DataController.getFilePrefixes().clear();
                     UIController.clearWrapperObjects();
                     DataController.fileDirMonitorDetach();
+                    UIController.resetServerStatisticsCalc();
                     removeGrids();
                     DataController.setAverageProcessingTime(DataController.getAverageProcessingTime());
                     event.getButton().setCaption("Start Server");
@@ -134,11 +140,8 @@ public class MyUI extends UI {
             }
         });
 
-        averageProcessingTimeLabel = new Label();
-        averageProcessingTimeLabel.setCaption("Average Processing Time");
-        averageProcessingTimeLabel.setValue("0");
-        btnLayout.addComponentsAndExpand(btnStartServer, automateListingCheck, timeoutLayout, averageProcessingTimeLabel);
 
+        btnLayout.addComponentsAndExpand(btnStartServer, automateListingCheck, timeoutLayout);
         pipelineComponentsCheckGroup.addValueChangeListener(event -> {
             if (gridLayout != null)
                 rootLayout.removeComponent(gridLayout);
@@ -217,6 +220,40 @@ public class MyUI extends UI {
         formFilePath.addComponent(dataPathInput);
 
         rootLayout.addComponent(formFilePath);
+    }
+
+    private void serverStatisticsCalcLayout() {
+
+        FormLayout statisticsLayout = new FormLayout();
+        averageProcessingTimeLabel = new Label();
+        averageProcessingTimeLabel.setCaption("Average Processing Time");
+        averageProcessingTimeLabel.setStyleName(ValoTheme.LABEL_BOLD);
+        averageProcessingTimeLabel.setStyleName(ValoTheme.LABEL_NO_MARGIN);
+        averageProcessingTimeLabel.setValue("0");
+        jobCompletionRateLabel = new Label();
+        jobCompletionRateLabel.setCaption("Job Completion Rate");
+        jobCompletionRateLabel.setStyleName(ValoTheme.LABEL_BOLD);
+        jobCompletionRateLabel.setStyleName(ValoTheme.LABEL_NO_MARGIN);
+        jobCompletionRateLabel.setValue("0");
+        jobFailureRateLabel = new Label();
+        jobFailureRateLabel.setCaption("Job Failure Rate");
+        jobFailureRateLabel.setStyleName(ValoTheme.LABEL_BOLD);
+        jobFailureRateLabel.setStyleName(ValoTheme.LABEL_NO_MARGIN);
+        jobFailureRateLabel.setValue("0");
+        newJobArrivalRateLabel = new Label();
+        newJobArrivalRateLabel.setCaption("New Job Arrival Rate");
+        newJobArrivalRateLabel.setStyleName(ValoTheme.LABEL_BOLD);
+        newJobArrivalRateLabel.setStyleName(ValoTheme.LABEL_NO_MARGIN);
+        newJobArrivalRateLabel.setValue("0");
+        newJobRequestRateLabel = new Label();
+        newJobRequestRateLabel.setCaption("New Job Request Rate");
+        newJobRequestRateLabel.setStyleName(ValoTheme.LABEL_BOLD);
+        newJobRequestRateLabel.setStyleName(ValoTheme.LABEL_NO_MARGIN);
+        newJobRequestRateLabel.setValue("0");
+
+        statisticsLayout.addComponents(averageProcessingTimeLabel, jobCompletionRateLabel, jobFailureRateLabel, newJobArrivalRateLabel, newJobRequestRateLabel);
+        statisticsLayout.setMargin(false);
+        rootLayout.addComponent(statisticsLayout);
     }
 
     private void createGrids() {

@@ -34,7 +34,7 @@ public class DataController {
     private static WatchService watchService;
 
     // TODO let the user assign the following values
-    private static final long statWatchTimerInMinutes = 1; // 1 minute
+    public static final long statWatchTimerInMinutes = 1; // 1 minute
     private static int idleJobLimit = 10;
 
     private static float jobCompletionRate = 0;

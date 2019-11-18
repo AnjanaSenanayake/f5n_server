@@ -84,7 +84,6 @@ public class FileServer {
             public FtpletResult afterCommand(FtpSession session, FtpRequest request, FtpReply reply) throws FtpException, IOException {
                 System.out.println("afterCommand " + session.getUserArgument() + " : " + session.toString() + " | " + request.getArgument() + " : " + request.getCommand() + " : " + request.getRequestLine() + " | " + reply.getMessage() + " : " + reply.toString());
                 System.out.println("Thread #" + Thread.currentThread().getId());
-
                 //do something
                 return FtpletResult.DEFAULT;//...or return accordingly
             }
@@ -93,7 +92,6 @@ public class FileServer {
             public FtpletResult onConnect(FtpSession session) throws FtpException, IOException {
                 System.out.println("onConnect " + session.getUserArgument() + " : " + session.toString());
                 System.out.println("Thread #" + Thread.currentThread().getId());
-
                 //do something
                 return FtpletResult.DEFAULT;//...or return accordingly
             }
