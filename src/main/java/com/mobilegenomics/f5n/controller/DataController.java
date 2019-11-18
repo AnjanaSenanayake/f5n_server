@@ -14,6 +14,7 @@ import java.net.SocketException;
 import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.Objects;
 
 public class DataController {
@@ -31,6 +32,20 @@ public class DataController {
     private static String SPLITTER = ".zip";
     private static ArrayList<String> filePrefixes = new ArrayList<>();
     private static WatchService watchService;
+
+    // TODO let the user assign the following values
+    private static final long statWatchTimerInMinutes = 1; // 1 minute
+    private static int idleJobLimit = 10;
+
+    private static float jobCompletionRate = 0;
+    private static float jobFailureRate = 0;
+    private static float newJobArrivalRate = 0;
+    private static float newJobRequestRate = 0;
+
+    private static int totalRunningJobs = 0;
+    private static int totalIdleJobs = 0;
+    private static int totalPredictedRunningJobs = 0;
+    private static int totalPredictedIdleJobs = 0;
 
     public static ListDataProvider<WrapperObject> setListDataProvider(State state) {
         if (state == State.IDLE) {
@@ -218,4 +233,88 @@ public class DataController {
         }
         return ip;
     }
+
+    public static void calculateStats() {
+        calculateJobCompletionRate();
+        calculateJobFailureRate();
+        calculateNewJobArrivalRate();
+        calculateNewJobRequestRate();
+    }
+
+    public static float getJobCompletionRate() {
+        return jobCompletionRate;
+    }
+
+    public static float getJobFailureRate() {
+        return jobFailureRate;
+    }
+
+    public static float getNewJobArrivalRate() {
+        return newJobArrivalRate;
+    }
+
+    public static float getNewJobRequestRate() {
+        return newJobRequestRate;
+    }
+
+    // Job Completion rate is equal 1 / averageProcessingTime
+    private static void calculateJobCompletionRate() {
+        jobCompletionRate = 1.0f / averageProcessingTime;
+    }
+
+    // Job Failure rate is equal to jobs could not complete before timeout
+    private static void calculateJobFailureRate() {
+        Long elapsedTime;
+        int totalTimeOutJobs = 0;
+        Iterator<WrapperObject> iterator = pendingWrapperObjectList.iterator();
+        while (iterator.hasNext()) {
+            WrapperObject wrapperObject = iterator.next();
+            if (wrapperObject.getState() == State.PENDING) {
+                elapsedTime = (System.currentTimeMillis() - wrapperObject.getReleaseTime()) / 1000;
+                if (elapsedTime > getProcessingTime()) {
+                    totalTimeOutJobs++;
+                }
+            }
+        }
+        jobCompletionRate = totalTimeOutJobs / (float) statWatchTimerInMinutes;
+    }
+
+    // Calculate New Job Arrival rate and update total Idle Jobs
+    private static void calculateNewJobArrivalRate() {
+        newJobArrivalRate = (idleWrapperObjectList.size() - totalIdleJobs) / (float) statWatchTimerInMinutes;
+        totalIdleJobs = idleWrapperObjectList.size();
+    }
+
+    // Calculate New Job Request rate and update total running Jobs
+    private static void calculateNewJobRequestRate() {
+        newJobRequestRate = (pendingWrapperObjectList.size() - totalRunningJobs) / (float) statWatchTimerInMinutes;
+        totalRunningJobs = pendingWrapperObjectList.size();
+    }
+
+//    TODO Call this method at the start of the server
+//    DataController.calculateStats();
+//
+//    TODO Call a timer method to repeatedly calculate the stats and update the UI
+//    Timer t = new Timer();
+//    t.scheduleAtFixedRate(new TimerTask() {
+//    @Override
+//        public void run() {
+//            DataController.calculateStats();
+//            TODO Update UI with the following stats
+//            DataController.getJobCompletionRate();
+//            DataController.getJobFailureRate();
+//            DataController.getNewJobArrivalRate();
+//            DataController.getNewJobRequestRate();
+//        }
+//    }, DataController.statWatchTimerInMinutes*60*1000, DataController.statWatchTimerInMinutes*60*1000);
+
+    // TODO Complete the following two prediction methods relating idleJobLimit
+    private static void predictNumberOfIdleJobs(long time) {
+        totalPredictedIdleJobs = totalIdleJobs - (int) (newJobRequestRate * time) + (int) (newJobArrivalRate * time) + (int) (jobFailureRate * time);
+    }
+
+    private static void predictNumberOfRunningJobs(long time) {
+        totalPredictedRunningJobs = totalRunningJobs - (int) (jobCompletionRate * totalRunningJobs) + (int) (newJobRequestRate * time);
+    }
+
 }
