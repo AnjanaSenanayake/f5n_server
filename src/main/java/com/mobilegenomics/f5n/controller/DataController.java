@@ -281,8 +281,12 @@ public class DataController {
 
     // Calculate New Job Arrival rate and update total Idle Jobs
     private static void calculateNewJobArrivalRate() {
-        newJobArrivalRate = (idleWrapperObjectList.size() - totalIdleJobs) / (float) statWatchTimerInMinutes;
-        totalIdleJobs = idleWrapperObjectList.size();
+        if (filePrefixes.size() - totalIdleJobs <= 0) {
+            newJobRequestRate = 0;
+        } else {
+            newJobArrivalRate = (filePrefixes.size() - totalIdleJobs) / (float) statWatchTimerInMinutes;
+        }
+        totalIdleJobs = filePrefixes.size();
     }
 
     // Calculate New Job Request rate and update total running Jobs
