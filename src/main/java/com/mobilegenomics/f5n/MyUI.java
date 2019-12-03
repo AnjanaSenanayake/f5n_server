@@ -50,6 +50,7 @@ public class MyUI extends UI {
 
     private void setupLayout() {
         rootLayout = new VerticalLayout();
+        rootLayout.addStyleName("mystyle");
 
         Label headerLabel = new Label();
         headerLabel.setValue("Welcome to the f5n Server");
