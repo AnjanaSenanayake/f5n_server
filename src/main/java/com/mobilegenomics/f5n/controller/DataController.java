@@ -7,18 +7,19 @@ import com.vaadin.data.provider.ListDataProvider;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.Inet6Address;
+import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.nio.file.*;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Objects;
 
 public class DataController {
 
+    // TODO let the user assign the following values
+    public static final long statWatchTimerInMinutes = 1; // 1 minute
     static ListDataProvider<WrapperObject> idleListDataProvider;
     static ListDataProvider<WrapperObject> busyListDataProvider;
     private static Long accumulatedJobProcessTime = 0L;
@@ -32,9 +33,6 @@ public class DataController {
     private static String SPLITTER = ".zip";
     private static ArrayList<String> filePrefixes = new ArrayList<>();
     private static WatchService watchService;
-
-    // TODO let the user assign the following values
-    public static final long statWatchTimerInMinutes = 1; // 1 minute
     private static int idleJobLimit = 10;
 
     private static float jobCompletionRate = 0;
@@ -192,11 +190,11 @@ public class DataController {
     }
 
     public static void setAverageProcessingTime(Long averageProcessingTime) {
-        DataController.averageProcessingTime = averageProcessingTime*1000;
+        DataController.averageProcessingTime = averageProcessingTime * 1000;
     }
 
     public static Long getProcessingTime() {
-        if(!isTimeoutSetByUser) {
+        if (!isTimeoutSetByUser) {
             return averageProcessingTime;
         } else {
             return userSetTimeout;
@@ -213,23 +211,13 @@ public class DataController {
 
     public static String getLocalIPAddress() {
         String ip = "127.0.0.1";
+        final DatagramSocket socket;
         try {
-            Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
-            while (interfaces.hasMoreElements()) {
-                NetworkInterface iface = interfaces.nextElement();
-                if (iface.isLoopback() || !iface.isUp())
-                    continue;
-                Enumeration<InetAddress> addresses = iface.getInetAddresses();
-                while (addresses.hasMoreElements()) {
-                    InetAddress addr = addresses.nextElement();
-                    // *EDIT*
-                    if (addr instanceof Inet6Address) continue;
-
-                    ip = addr.getHostAddress();
-                }
-            }
-        } catch (SocketException e) {
-            throw new RuntimeException(e);
+            socket = new DatagramSocket();
+            socket.connect(InetAddress.getByName("8.8.8.8"), 10002);
+            ip = socket.getLocalAddress().getHostAddress();
+        } catch (SocketException | UnknownHostException e) {
+            e.printStackTrace();
         }
         return ip;
     }
