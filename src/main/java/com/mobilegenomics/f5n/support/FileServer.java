@@ -10,6 +10,7 @@ import org.apache.ftpserver.usermanager.PropertiesUserManagerFactory;
 import org.apache.ftpserver.usermanager.impl.BaseUser;
 import org.apache.ftpserver.usermanager.impl.WritePermission;
 
+import javax.swing.filechooser.FileSystemView;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -20,6 +21,7 @@ import java.util.Map;
 public class FileServer {
 
     private static FtpServer server;
+    private static String usersFilePath;
 
     public static void startFTPServer(int port, String fileServerDir) {
         FtpServerFactory serverFactory = new FtpServerFactory();
@@ -28,7 +30,20 @@ public class FileServer {
         factory.setPort(port);// set the port of the listener (choose your desired port, not 1234)
         serverFactory.addListener("default", factory.createListener());
         PropertiesUserManagerFactory userManagerFactory = new PropertiesUserManagerFactory();
-        userManagerFactory.setFile(new File("/home/cyborg/myusers.properties"));//choose any. We're telling the FTP-server where to read its user list
+
+        FileSystemView fileSystem = FileSystemView.getFileSystemView();
+        usersFilePath = fileSystem.getHomeDirectory().getAbsolutePath();
+
+        File usersFile = new File(usersFilePath + "/users.properties");
+        if(!usersFile.exists()) {
+            try {
+                usersFile.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        userManagerFactory.setFile(new File(usersFilePath + "/users.properties"));//choose any. We're telling the FTP-server where to read its user list
         userManagerFactory.setPasswordEncryptor(new PasswordEncryptor() {//We store clear-text passwords in this example
 
             @Override
@@ -114,8 +129,8 @@ public class FileServer {
         }
     }
 
-    public static void stopFileServer(){
-        if(!server.isStopped()) {
+    public static void stopFileServer() {
+        if (!server.isStopped()) {
             server.stop();
         }
     }
