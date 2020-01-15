@@ -1,17 +1,14 @@
 package com.mobilegenomics.f5n.support;
 
 import com.mobilegenomics.f5n.controller.DataController;
+import org.apache.ftpserver.ConnectionConfigFactory;
 import org.apache.ftpserver.FtpServer;
 import org.apache.ftpserver.FtpServerFactory;
 import org.apache.ftpserver.ftplet.*;
 import org.apache.ftpserver.listener.ListenerFactory;
-import org.apache.ftpserver.usermanager.PasswordEncryptor;
-import org.apache.ftpserver.usermanager.PropertiesUserManagerFactory;
 import org.apache.ftpserver.usermanager.impl.BaseUser;
 import org.apache.ftpserver.usermanager.impl.WritePermission;
 
-import javax.swing.filechooser.FileSystemView;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,7 +18,6 @@ import java.util.Map;
 public class FileServer {
 
     private static FtpServer server;
-    private static String usersFilePath;
 
     public static void startFTPServer(int port, String fileServerDir) {
         FtpServerFactory serverFactory = new FtpServerFactory();
@@ -29,49 +25,26 @@ public class FileServer {
         factory.setServerAddress(DataController.getLocalIPAddress());
         factory.setPort(port);// set the port of the listener (choose your desired port, not 1234)
         serverFactory.addListener("default", factory.createListener());
-        PropertiesUserManagerFactory userManagerFactory = new PropertiesUserManagerFactory();
 
-        FileSystemView fileSystem = FileSystemView.getFileSystemView();
-        usersFilePath = fileSystem.getHomeDirectory().getAbsolutePath();
+        ConnectionConfigFactory connectionConfigFactory = new ConnectionConfigFactory();
+        connectionConfigFactory.setAnonymousLoginEnabled(true);
+        serverFactory.setConnectionConfig(connectionConfigFactory.createConnectionConfig());
 
-        File usersFile = new File(usersFilePath + "/users.properties");
-        if(!usersFile.exists()) {
-            try {
-                usersFile.createNewFile();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        userManagerFactory.setFile(new File(usersFilePath + "/users.properties"));//choose any. We're telling the FTP-server where to read its user list
-        userManagerFactory.setPasswordEncryptor(new PasswordEncryptor() {//We store clear-text passwords in this example
-
-            @Override
-            public String encrypt(String password) {
-                return password;
-            }
-
-            @Override
-            public boolean matches(String passwordToCheck, String storedPassword) {
-                return passwordToCheck.equals(storedPassword);
-            }
-        });
-        //Let's add a user, since our myusers.properties file is empty on our first test run
-        BaseUser user = new BaseUser();
-        user.setName("test");
-        user.setPassword("test");
-        user.setHomeDirectory(fileServerDir);
-        List<Authority> authorities = new ArrayList<Authority>();
-        authorities.add(new WritePermission());
-        user.setAuthorities(authorities);
-        UserManager um = userManagerFactory.createUserManager();
         try {
-            um.save(user);//Save the user to the user list on the filesystem
-        } catch (FtpException e1) {
-            //Deal with exception as you need
+            //Let's add a user, since our myusers.properties file is empty on our first test run
+            BaseUser user = new BaseUser();
+            user.setEnabled(true);
+            user.setName("anonymous");
+            user.setHomeDirectory(fileServerDir);
+            serverFactory.getUserManager().save(user);
+            List<Authority> authorities = new ArrayList<>();
+            authorities.add(new WritePermission());
+            user.setAuthorities(authorities);
+        } catch (FtpException e) {
+            e.printStackTrace();
         }
-        serverFactory.setUserManager(um);
-        Map<String, Ftplet> m = new HashMap<String, Ftplet>();
+
+        Map<String, Ftplet> m = new HashMap<>();
         m.put("miaFtplet", new Ftplet() {
 
             @Override
