@@ -188,7 +188,23 @@ public class MyUI extends UI {
                     argumentInput.setRequiredIndicatorVisible(true);
                 }
                 tabLayout.addComponent(argumentInput);
+            } else {
+                if(argument.getArgID().equals("MINIMAP2_GENERATE_CIGAR")) {
+                    CheckBox checkBoxSAM = (CheckBox)UIController.findComponentById(tabLayout, componentName + "_checkbox_" + "Output format SAM");
+                    CheckBox checkBoxPAF = (CheckBox)UIController.findComponentById(tabLayout, componentName + "_checkbox_" + argument.getArgName());
+                    checkBoxSAM.setValue(true);
+                    checkBoxSAM.addValueChangeListener(event -> {
+                        checkBoxPAF.setValue(!event.getValue());
+                        checkBoxPAF.setEnabled(!event.getValue());
+                    });
+
+                    checkBoxPAF.addValueChangeListener(event -> {
+                        checkBoxSAM.setValue(!event.getValue());
+                        checkBoxSAM.setEnabled(!event.getValue());
+                    });
+                }
             }
+
         }
         pipelineComponentsLayout.addTab(tabLayout, componentName);
 
