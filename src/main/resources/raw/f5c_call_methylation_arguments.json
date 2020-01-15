@@ -2,7 +2,7 @@
   "args": [
     {
       "argName": "fastq/fasta read file",
-      "argValue": null,
+      "argValue": "reads.fastq",
       "argDescription": "fastq/fasta read file",
       "flag": "-r",
       "argID": "F5C_METH_FASTA_FILE",
@@ -14,7 +14,7 @@
     },
     {
       "argName": "sorted bam file",
-      "argValue": null,
+      "argValue": "samtool.bam",
       "argDescription": "sorted bam file",
       "flag": "-b",
       "argID": "F5C_METH_SORTED_FILE",
@@ -26,7 +26,7 @@
     },
     {
       "argName": "reference genome",
-      "argValue": null,
+      "argValue": "chr22.fa",
       "argDescription": "reference genome",
       "flag": "-g",
       "argID": "F5C_METH_REF_FILE",
@@ -38,7 +38,7 @@
     },
     {
       "argName": "output tsv file",
-      "argValue": null,
+      "argValue": "meth.tsv",
       "argDescription": "tsv file from call-methylation",
       "flag": "-o",
       "argID": "F5C_METH_OUTPUT_FILE",

@@ -2,7 +2,7 @@
   "args": [
     {
       "argName": "input bam",
-      "argValue": null,
+      "argValue": "samtool.bam",
       "argDescription": "Path to the input bam file",
       "flag": null,
       "argID": "SAMTOOL_INDEX_INPUT_FILE",

@@ -2,7 +2,7 @@
   "args": [
     {
       "argName": "fast5 files",
-      "argValue": null,
+      "argValue": "fast5",
       "argDescription": "path to the directory containing the raw ONT signal files. This option can be given multiple times.",
       "flag": "--directory",
       "argID": "F5C_INDEX_FAST5_FILE",
@@ -14,7 +14,7 @@
     },
     {
       "argName": "fast[a or q] reads",
-      "argValue": null,
+      "argValue": "reads.fastq",
       "argDescription": "Path to the reads.fasta or fastq file",
       "flag": null,
       "argID": "F5C_INDEX_FASTA_FILE",

@@ -2,7 +2,7 @@
   "args": [
     {
       "argName": "fastq/fasta read file",
-      "argValue": null,
+      "argValue": "reads.fastq",
       "argDescription": "fastq/fasta read file",
       "flag": "-r",
       "argID": "F5C_ALIGN_FASTA_FILE",
@@ -14,7 +14,7 @@
     },
     {
       "argName": "sorted bam",
-      "argValue": null,
+      "argValue": "samtool.bam",
       "argDescription": "path to sorted bam file",
       "flag": "-b",
       "argID": "F5C_ALIGN_SORTED_FILE",
@@ -26,7 +26,7 @@
     },
     {
       "argName": "reference genome",
-      "argValue": null,
+      "argValue": "chr22.fa",
       "argDescription": "path to reference genome",
       "flag": "-g",
       "argID": "F5C_ALIGN_REF_FILE",
@@ -38,7 +38,7 @@
     },
     {
       "argName": "output file",
-      "argValue": null,
+      "argValue": "event_align.txt",
       "argDescription": "path to output summary",
       "flag": "-o",
       "argID": "F5C_ALIGN_OUTPUT_FILE",

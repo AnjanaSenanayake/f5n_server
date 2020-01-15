@@ -2,7 +2,7 @@
   "args": [
     {
       "argName": "reference index",
-      "argValue": null,
+      "argValue": "chr22.fa",
       "argDescription": "Path to the reference index file",
       "flag": null,
       "argID": "MINIMAP2_REF_FILE",
@@ -14,7 +14,7 @@
     },
     {
       "argName": "query sequence",
-      "argValue": null,
+      "argValue": "reads.fastq",
       "argDescription": "Path to the query sequence file",
       "flag": null,
       "argID": "MINIMAP2_QUERY_FILE",
@@ -26,7 +26,7 @@
     },
     {
       "argName": "output file",
-      "argValue": null,
+      "argValue": "minimap.sam",
       "argDescription": "Path to the output sam file",
       "flag": "-o",
       "argID": "MINIMAP2_OUTPUT_FILE",

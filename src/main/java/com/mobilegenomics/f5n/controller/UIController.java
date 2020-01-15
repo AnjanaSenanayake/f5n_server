@@ -45,6 +45,7 @@ public class UIController {
 
     //TODO fix format sam paf checkboxes in minmap sequence alignment
     public static void configurePipelineComponents(TabSheet pipelineComponentsLayout) {
+        String DATA_SET_PATH = "$DATA_SET_PATH/";
         for (String componentName : componentsNameList) {
             arguments = UIController.getSteps().get(PipelineStep.valueOf(componentName).getValue()).getArguments();
             //CheckBox checkBox_prepend = (CheckBox) findComponentById(pipelineComponentsLayout, componentName + "_checkbox_prepend" + componentName);
@@ -53,7 +54,7 @@ public class UIController {
                 if (checkBox.getValue() && !argument.isFlagOnly()) {
                     TextField argumentInput = (TextField) findComponentById(pipelineComponentsLayout, componentName + "_textfield_" + argument.getArgName());
                     if (argumentInput != null && !argumentInput.isEmpty()) {
-                        argument.setArgValue(argumentInput.getValue());
+                        argument.setArgValue(DATA_SET_PATH + "" + argumentInput.getValue());
                         argument.setSetByUser(true);
                     }
                 } else {
@@ -171,10 +172,10 @@ public class UIController {
                 MyUI.newJobArrivalRateLabel.setValue(String.valueOf(DataController.getNewJobArrivalRate()));
                 MyUI.newJobRequestRateLabel.setValue(String.valueOf(DataController.getNewJobRequestRate()));
             }
-        }, DataController.statWatchTimerInMinutes*60*1000, DataController.statWatchTimerInMinutes*60*1000);
+        }, DataController.statWatchTimerInMinutes * 60 * 1000, DataController.statWatchTimerInMinutes * 60 * 1000);
     }
 
-    public static void resetServerStatisticsCalc(){
+    public static void resetServerStatisticsCalc() {
         MyUI.jobCompletionRateLabel.setValue(String.valueOf(0));
         MyUI.jobFailureRateLabel.setValue(String.valueOf(0));
         MyUI.newJobArrivalRateLabel.setValue(String.valueOf(0));

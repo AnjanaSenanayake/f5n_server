@@ -171,9 +171,9 @@ public class MyUI extends UI {
     private void generatePipelineComponentArgumentLayout(TabSheet pipelineComponentsLayout, String componentName) {
         FormLayout tabLayout = new FormLayout();
         tabLayout.setMargin(true);
-        CheckBox checkBox_prepend = new CheckBox("Prepend data set path to file inputs");
-        checkBox_prepend.setId(componentName + "_checkbox_prepend_" + componentName);
-        tabLayout.addComponent(checkBox_prepend);
+        CheckBox checkBoxDefaultValues = new CheckBox("Set default values");
+        checkBoxDefaultValues.setId(componentName + "_checkbox_prepend_" + componentName);
+        tabLayout.addComponent(checkBoxDefaultValues);
         for (Argument argument : UIController.getSteps().get(PipelineStep.valueOf(componentName).getValue()).getArguments()) {
             CheckBox checkBox = new CheckBox(argument.getArgName());
             checkBox.setId(componentName + "_checkbox_" + argument.getArgName());
@@ -187,24 +187,21 @@ public class MyUI extends UI {
                     checkBox.setEnabled(false);
                     argumentInput.setRequiredIndicatorVisible(true);
                 }
-                if (argument.getArgValue() != null)
-                    argumentInput.setValue(argument.getArgValue());
                 tabLayout.addComponent(argumentInput);
             }
         }
         pipelineComponentsLayout.addTab(tabLayout, componentName);
 
-        checkBox_prepend.addValueChangeListener(event -> {
-            String DATA_SET_PATH;
-            if (event.getValue()) {
-                DATA_SET_PATH = "$DATA_SET_PATH/";
-            } else {
-                DATA_SET_PATH = "";
-            }
+        checkBoxDefaultValues.addValueChangeListener(event -> {
+            boolean isSetDefaultArg;
+            isSetDefaultArg = event.getValue();
             for (Argument argument : UIController.getSteps().get(PipelineStep.valueOf(componentName).getValue()).getArguments()) {
                 if (!argument.isFlagOnly() && argument.isFile()) {
                     TextField argumentInput = (TextField) UIController.findComponentById(tabLayout, componentName + "_textfield_" + argument.getArgName());
-                    argumentInput.setValue(DATA_SET_PATH);
+                    if(isSetDefaultArg)
+                        argumentInput.setValue(argument.getArgValue());
+                    else
+                        argumentInput.setValue("");
                 }
             }
         });
@@ -215,7 +212,7 @@ public class MyUI extends UI {
 
         dataPathInput = new TextField("Data Set Path: ");
         dataPathInput.setPlaceholder("Path to the genome data directory");
-        dataPathInput.setWidth(20, Unit.EM);
+        dataPathInput.setWidth(30, Unit.EM);
         dataPathInput.setIcon(VaadinIcons.FILE);
         dataPathInput.setRequiredIndicatorVisible(true);
         formFilePath.addComponent(dataPathInput);

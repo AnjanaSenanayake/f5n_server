@@ -2,7 +2,7 @@
   "args": [
     {
       "argName": "input sam",
-      "argValue": null,
+      "argValue": "minimap.sam",
       "argDescription": "Path to the input sam file",
       "flag": null,
       "argID": "SAMTOOL_SORT_INPUT_FILE",
@@ -14,7 +14,7 @@
     },
     {
       "argName": "output file",
-      "argValue": null,
+      "argValue": "samtool.bam",
       "argDescription": "Path to the output file",
       "flag": "-o",
       "argID": "SAMTOOL_SORT_OUTPUT_FILE",
