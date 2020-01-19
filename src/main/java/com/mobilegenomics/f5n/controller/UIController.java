@@ -110,6 +110,7 @@ public class UIController {
                     try {
                         //Establishes connection
                         Socket socket = serverSocket.accept();
+                        socket.setSoTimeout(2000); // Time out after 2000 milli seconds
                         System.out.println("A client is connected: " + socket.getLocalSocketAddress());
                         ObjectInputStream objectInStream = null;
                         objectInStream = new ObjectInputStream(socket.getInputStream());
