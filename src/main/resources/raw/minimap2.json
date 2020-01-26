@@ -1,6 +1,18 @@
 {
   "args": [
     {
+      "argName": "Temporary Prefix for multi-part index",
+      "argValue": "minimap.tmp",
+      "argDescription": "Prefix to create temporary files. Typically used for a multi-part index",
+      "flag": "--multi-prefix=",
+      "argID": "MINIMAP2_TEMP_FILE",
+      "isDependentOn": "null",
+      "hasFlag": true,
+      "flagOnly": false,
+      "required": false,
+      "isFile": true
+    },
+    {
       "argName": "reference index",
       "argValue": "chr22.fa",
       "argDescription": "Path to the reference index file",
@@ -37,7 +49,7 @@
       "isFile": true
     },
     {
-      "argName": "Output format SAM",
+      "argName": "Output SAM format (Default PAF format)",
       "argValue": null,
       "argDescription": "Generate CIGAR and output alignments in SAM ",
       "flag": "-a",
@@ -49,7 +61,7 @@
       "isFile": false
     },
     {
-      "argName": "Output format PAF",
+      "argName": "Generate CIGAR at the cg tag of PAF",
       "argValue": null,
       "argDescription": "Generate CIGAR and output alignments in PAF format",
       "flag": "-c",
@@ -62,26 +74,26 @@
     },
     {
       "argName": "Threads",
-      "argValue": "3",
+      "argValue": "4",
       "argDescription": "Number of threads [3]",
       "flag": "-t",
       "argID": "tobedecided",
       "isDependentOn": "argIDofanotherArg",
       "hasFlag": true,
       "flagOnly": false,
-      "required": false,
+      "required": true,
       "isFile": false
     },
     {
       "argName": "Bases loaded into memory",
-      "argValue": "500M",
+      "argValue": "10M",
       "argDescription": "Number of bases loaded into memory[500M]",
       "flag": "-K",
       "argID": "tobedecided",
       "isDependentOn": "argIDofanotherArg",
       "hasFlag": true,
       "flagOnly": false,
-      "required": false,
+      "required": true,
       "isFile": false
     }
   ]
