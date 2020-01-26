@@ -43,7 +43,7 @@ public class UIController {
         return CoreController.getSteps();
     }
 
-    //TODO fix format sam paf checkboxes in minmap sequence alignment
+    //TODO fix format sam paf checkboxes in minimap sequence alignment
     public static void configurePipelineComponents(TabSheet pipelineComponentsLayout) {
         String DATA_SET_PATH = "$DATA_SET_PATH/";
         for (String componentName : componentsNameList) {
@@ -53,8 +53,11 @@ public class UIController {
                 CheckBox checkBox = (CheckBox) findComponentById(pipelineComponentsLayout, componentName + "_checkbox_" + argument.getArgName());
                 if (checkBox.getValue() && !argument.isFlagOnly()) {
                     TextField argumentInput = (TextField) findComponentById(pipelineComponentsLayout, componentName + "_textfield_" + argument.getArgName());
-                    if (argumentInput != null && !argumentInput.isEmpty()) {
+                    if (argumentInput != null && !argumentInput.isEmpty() && argument.isFile()) {
                         argument.setArgValue(DATA_SET_PATH + "" + argumentInput.getValue());
+                        argument.setSetByUser(true);
+                    } else if (argumentInput != null && !argumentInput.isEmpty() && argument.isRequired()) {
+                        argument.setArgValue(argumentInput.getValue());
                         argument.setSetByUser(true);
                     }
                 } else {

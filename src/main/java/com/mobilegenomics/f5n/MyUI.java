@@ -190,7 +190,7 @@ public class MyUI extends UI {
                 tabLayout.addComponent(argumentInput);
             } else {
                 if(argument.getArgID().equals("MINIMAP2_GENERATE_CIGAR")) {
-                    CheckBox checkBoxSAM = (CheckBox)UIController.findComponentById(tabLayout, componentName + "_checkbox_" + "Output format SAM");
+                    CheckBox checkBoxSAM = (CheckBox)UIController.findComponentById(tabLayout, componentName + "_checkbox_" + "Output SAM format (Default PAF format)");
                     CheckBox checkBoxPAF = (CheckBox)UIController.findComponentById(tabLayout, componentName + "_checkbox_" + argument.getArgName());
                     checkBoxSAM.setValue(true);
                     checkBoxSAM.addValueChangeListener(event -> {
@@ -212,7 +212,7 @@ public class MyUI extends UI {
             boolean isSetDefaultArg;
             isSetDefaultArg = event.getValue();
             for (Argument argument : UIController.getSteps().get(PipelineStep.valueOf(componentName).getValue()).getArguments()) {
-                if (!argument.isFlagOnly() && argument.isFile()) {
+                if (!argument.isFlagOnly() && argument.isRequired()) {
                     TextField argumentInput = (TextField) UIController.findComponentById(tabLayout, componentName + "_textfield_" + argument.getArgName());
                     if(isSetDefaultArg)
                         argumentInput.setValue(argument.getArgValue());
