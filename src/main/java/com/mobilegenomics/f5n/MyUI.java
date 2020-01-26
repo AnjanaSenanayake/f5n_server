@@ -4,15 +4,16 @@ import com.mobilegenomics.f5n.controller.DataController;
 import com.mobilegenomics.f5n.controller.UIController;
 import com.mobilegenomics.f5n.dto.State;
 import com.mobilegenomics.f5n.dto.WrapperObject;
+import com.vaadin.annotations.PreserveOnRefresh;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.VaadinServletConfiguration;
 import com.vaadin.icons.VaadinIcons;
-import com.vaadin.server.VaadinRequest;
-import com.vaadin.server.VaadinServlet;
+import com.vaadin.server.*;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
 
+import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -25,6 +26,7 @@ import java.net.UnknownHostException;
  * overridden to add component to the user interface and initialize non-component functionality.
  */
 @Theme("mytheme")
+@PreserveOnRefresh
 public class MyUI extends UI {
 
     private static final long serialVersionUID = -3368134597486018167L;
@@ -241,7 +243,26 @@ public class MyUI extends UI {
 
     @WebServlet(urlPatterns = "/*", name = "MyUIServlet", asyncSupported = true)
     @VaadinServletConfiguration(ui = MyUI.class, productionMode = false)
-    public static class MyUIServlet extends VaadinServlet {
+    public static class MyUIServlet extends VaadinServlet
+            implements SessionInitListener, SessionDestroyListener  {
         private static final long serialVersionUID = -706128960774628840L;
+
+        @Override
+        protected void servletInitialized() throws ServletException {
+            super.servletInitialized();
+            getService().addSessionInitListener(this);
+            getService().addSessionDestroyListener(this);
+        }
+
+        @Override
+        public void sessionInit(SessionInitEvent event)
+                throws ServiceException {
+            // Do session start stuff here
+        }
+
+        @Override
+        public void sessionDestroy(SessionDestroyEvent event) {
+            // Do session end stuff here
+        }
     }
 }
