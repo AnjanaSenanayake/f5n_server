@@ -19,6 +19,8 @@ import com.vaadin.ui.themes.ValoTheme;
 import javax.servlet.annotation.WebServlet;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * This UI is the application entry point. A UI may either represent a browser window
@@ -29,6 +31,8 @@ import java.net.UnknownHostException;
  */
 @Theme("mytheme")
 public class MyUI extends UI {
+
+    private boolean isTimeOutSeconds;
 
     public static Label averageProcessingTimeLabel;
     public static Label jobCompletionRateLabel;
@@ -94,17 +98,36 @@ public class MyUI extends UI {
         HorizontalLayout btnLayout = new HorizontalLayout();
 
         VerticalLayout timeoutLayout = new VerticalLayout();
-        timeoutInput = new TextField();
-        timeoutInput.setPlaceholder("Set timeout in seconds");
-        timeoutInput.setEnabled(false);
         CheckBox userTimeoutCheck = new CheckBox("Enable Job Timeout");
+        HorizontalLayout timeInputLayout = new HorizontalLayout();
+        timeoutInput = new TextField();
+        timeoutInput.setEnabled(false);
         timeoutLayout.setMargin(false);
-        timeoutLayout.addComponents(userTimeoutCheck, timeoutInput);
+        RadioButtonGroup<String> selectTimeInputType = new RadioButtonGroup<>();
+        selectTimeInputType.setItems("Seconds", "Minutes");
+        selectTimeInputType.setSelectedItem("Seconds");
+        timeoutInput.setPlaceholder("Set timeout in seconds");
+        selectTimeInputType.setEnabled(false);
+        selectTimeInputType.addValueChangeListener(event -> {
+            if(event.getValue().equals("Seconds")) {
+                isTimeOutSeconds = true;
+                timeoutInput.setPlaceholder("Set timeout in seconds");
+            } else {
+                isTimeOutSeconds = false;
+                timeoutInput.setPlaceholder("Set timeout in minutes");
+            }
+        });
+        timeInputLayout.addComponents(timeoutInput, selectTimeInputType);
+        timeoutLayout.addComponents(userTimeoutCheck, timeInputLayout);
         userTimeoutCheck.addValueChangeListener(event -> {
-            if (event.getValue())
+            if (event.getValue()) {
                 timeoutInput.setEnabled(true);
-            else
+                selectTimeInputType.setEnabled(true);
+            }
+            else {
                 timeoutInput.setEnabled(false);
+                selectTimeInputType.setEnabled(false);
+            }
         });
 
         CheckBox automateListingCheck = new CheckBox("Automate Job Listing");
@@ -115,8 +138,12 @@ public class MyUI extends UI {
                     UIController.configurePipelineComponents(pipelineComponentsLayout);
                     UIController.configureWrapperObjects(dataPathInput.getValue().trim(), automateListingCheck.getValue());
                     createGrids();
-                    if (userTimeoutCheck.getValue())
-                        DataController.setAverageProcessingTime(Long.valueOf(timeoutInput.getValue()));
+                    if (userTimeoutCheck.getValue()){
+                        if(!isTimeOutSeconds)
+                            DataController.setAverageProcessingTime(Long.parseLong(timeoutInput.getValue())*60);
+                        else
+                            DataController.setAverageProcessingTime(Long.parseLong(timeoutInput.getValue()));
+                    }
                     UIController.runServer();
                     FileServer.startFTPServer(8000, dataPathInput.getValue().trim());
                     UIController.startServerStatisticsCalc();
