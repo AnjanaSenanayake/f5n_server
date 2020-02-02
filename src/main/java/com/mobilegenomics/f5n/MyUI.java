@@ -1,6 +1,7 @@
 package com.mobilegenomics.f5n;
 
 import com.mobilegenomics.f5n.controller.DataController;
+import com.mobilegenomics.f5n.controller.ServerController;
 import com.mobilegenomics.f5n.controller.UIController;
 import com.mobilegenomics.f5n.dto.State;
 import com.mobilegenomics.f5n.dto.WrapperObject;
@@ -30,36 +31,36 @@ import java.net.UnknownHostException;
 public class MyUI extends UI {
 
     private static final long serialVersionUID = -3368134597486018167L;
-    public Label headerLabel;
-    public Label networkHostLabel;
-    public Label checkBoxGroupLabel;
-    public Label averageProcessingTimeLabel;
-    public Label jobCompletionRateLabel;
-    public Label jobFailureRateLabel;
-    public Label newJobArrivalRateLabel;
-    public Label newJobRequestRateLabel;
-    public TextField dataSetPathInput;
-    public TextField timeoutInput;
-    public CheckBoxGroup<String> pipelineComponentsCheckGroup;
-    public TabSheet pipelineComponentsLayout;
-    public Button btnStartServer;
-    public CheckBox automateListingCheck;
-    public CheckBox userTimeoutCheck;
-    public RadioButtonGroup<String> selectTimeInputType;
-    public Grid<WrapperObject> gridIdleJobs;
-    public Grid<WrapperObject> gridAllocatedJobs;
-    public Window window;
+    public static Label headerLabel;
+    public static Label networkHostLabel;
+    public static Label checkBoxGroupLabel;
+    public static Label averageProcessingTimeLabel;
+    public static Label jobCompletionRateLabel;
+    public static Label jobFailureRateLabel;
+    public static Label newJobArrivalRateLabel;
+    public static Label newJobRequestRateLabel;
+    public static TextField dataSetPathInput;
+    public static TextField timeoutInput;
+    public static CheckBoxGroup<String> pipelineComponentsCheckGroup;
+    public static TabSheet pipelineComponentsLayout;
+    public static Button btnStartServer;
+    public static CheckBox automateListingCheck;
+    public static CheckBox userTimeoutCheck;
+    public static RadioButtonGroup<String> selectTimeInputType;
+    public static Grid<WrapperObject> gridIdleJobs;
+    public static Grid<WrapperObject> gridAllocatedJobs;
+    public static Window window;
 
-    public VerticalLayout rootLayout;
-    public FormLayout componentTabLayout;
-    public HorizontalLayout serverButtonsLayout;
-    public HorizontalLayout jobStatusGridsLayout;
+    public static VerticalLayout rootLayout;
+    public static FormLayout componentTabLayout;
+    public static HorizontalLayout serverButtonsLayout;
+    public static HorizontalLayout jobStatusGridsLayout;
 
     @Override
     protected void init(VaadinRequest vaadinRequest) {
         setupLayout();
         UIController uiController = new UIController();
-        uiController.initiateUISettings(this);
+        uiController.initiateUISettings();
         UI.getCurrent().setPollInterval(3000);
     }
 
@@ -174,7 +175,7 @@ public class MyUI extends UI {
         rootLayout.addComponent(statisticsLayout);
     }
 
-    public void jobsStatusGridsView() {
+    public static void jobsStatusGridsView() {
         jobStatusGridsLayout = new HorizontalLayout();
 
         gridIdleJobs = new Grid<>();
@@ -200,11 +201,11 @@ public class MyUI extends UI {
         rootLayout.addComponent(jobStatusGridsLayout);
     }
 
-    public void removeJobStatusGridsView() {
+    public static void removeJobStatusGridsView() {
         rootLayout.removeComponent(jobStatusGridsLayout);
     }
 
-    private void gridAllocatedJobsAddSummeryColumn() {
+    private static void gridAllocatedJobsAddSummeryColumn() {
         gridAllocatedJobs.addComponentColumn(wrapper -> {
             Button button = new Button();
             button.setCaption("Summery");
@@ -222,7 +223,7 @@ public class MyUI extends UI {
                     newResultSummary.append("\n");
                     newResultSummary.append("Client Address: ").append(wrapper.getClientIP());
                     newResultSummary.append("\n");
-                    long jobProcessTime = wrapper.getCollectTime() - wrapper.getReleaseTime();
+                    long jobProcessTime = (wrapper.getCollectTime() - wrapper.getReleaseTime())/(60000);
                     newResultSummary.append("Total Job Processing Time: ").append(jobProcessTime).append("ms");
                     label.setValue(newResultSummary.toString());
                     window.setContent(label);
@@ -237,8 +238,8 @@ public class MyUI extends UI {
         }).setCaption("Summary");
     }
 
-    public void addWindowToParent(Window window) {
-        addWindow(window);
+    public static void addWindowToParent(Window window) {
+        getCurrent().addWindow(window);
     }
 
     @WebServlet(urlPatterns = "/*", name = "MyUIServlet", asyncSupported = true)

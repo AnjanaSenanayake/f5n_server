@@ -36,6 +36,13 @@ public class Step implements Serializable {
         command = commandBuilder.toString();
     }
 
+    private boolean isEqualPresent(String flag) {
+        if(flag.substring(flag.length()-1).equals("="))
+            return true;
+        else
+            return false;
+    }
+
     public String getCommandString() {
         return command;
     }

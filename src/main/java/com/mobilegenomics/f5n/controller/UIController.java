@@ -7,11 +7,12 @@ import com.mobilegenomics.f5n.support.FileServer;
 import com.vaadin.ui.*;
 
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class UIController {
 
     private static ArrayList<String> componentsNameList;
-    private MyUI myUI;
     private boolean isTimeOutSeconds;
 
     public static Component findComponentById(HasComponents root, String id) {
@@ -28,115 +29,114 @@ public class UIController {
         return null; // none was found
     }
 
-    public void initiateUISettings(MyUI myUI) {
-        this.myUI = myUI;
+    public void initiateUISettings() {
         pipelineComponentsController();
         jobTimeOutController();
         runServerController();
     }
 
     private void pipelineComponentsController() {
-        myUI.pipelineComponentsCheckGroup.setItems("MINIMAP2_SEQUENCE_ALIGNMENT", "SAMTOOL_SORT", "SAMTOOL_INDEX", "F5C_INDEX", "F5C_CALL_METHYLATION", "F5C_EVENT_ALIGNMENT");
+        MyUI.pipelineComponentsCheckGroup.setItems("MINIMAP2_SEQUENCE_ALIGNMENT", "SAMTOOL_SORT", "SAMTOOL_INDEX", "F5C_INDEX", "F5C_CALL_METHYLATION", "F5C_EVENT_ALIGNMENT");
 
-        myUI.pipelineComponentsCheckGroup.addValueChangeListener(event -> {
-            if (myUI.jobStatusGridsLayout != null)
-                myUI.rootLayout.removeComponent(myUI.jobStatusGridsLayout);
+        MyUI.pipelineComponentsCheckGroup.addValueChangeListener(event -> {
+            if (MyUI.jobStatusGridsLayout != null)
+                MyUI.rootLayout.removeComponent(MyUI.jobStatusGridsLayout);
             if (!event.getValue().isEmpty()) {
-                myUI.serverButtonsLayout.setEnabled(true);
-                myUI.pipelineComponentsLayout.removeAllComponents();
+                MyUI.serverButtonsLayout.setEnabled(true);
+                MyUI.pipelineComponentsLayout.removeAllComponents();
                 CoreController.eraseSelectedPipeline();
                 componentsNameList = new ArrayList<>();
                 DataController.getFilePrefixes().clear();
-                CoreController.addPipelineSteps(myUI.pipelineComponentsCheckGroup.getSelectedItems());
-                myUI.pipelineComponentsLayout.addTab(myUI.pipelineComponentsCheckGroup, "Components List");
+                CoreController.addPipelineSteps(MyUI.pipelineComponentsCheckGroup.getSelectedItems());
+                MyUI.pipelineComponentsLayout.addTab(MyUI.pipelineComponentsCheckGroup, "Components List");
                 for (String componentName : event.getValue()) {
-                    pipelineComponentsGenerator(myUI.pipelineComponentsLayout, componentName);
+                    pipelineComponentsGenerator(MyUI.pipelineComponentsLayout, componentName);
                     componentsNameList.add(componentName);
                 }
             } else {
-                myUI.serverButtonsLayout.setEnabled(false);
-                myUI.pipelineComponentsLayout.removeAllComponents();
-                myUI.pipelineComponentsLayout.addTab(myUI.pipelineComponentsCheckGroup, "Components List");
+                MyUI.serverButtonsLayout.setEnabled(false);
+                MyUI.pipelineComponentsLayout.removeAllComponents();
+                MyUI.pipelineComponentsLayout.addTab(MyUI.pipelineComponentsCheckGroup, "Components List");
             }
         });
     }
 
     private void runServerController() {
-        myUI.btnStartServer.addClickListener(event -> {
-            if (myUI.dataSetPathInput.getValue() != null && !myUI.dataSetPathInput.getValue().trim().isEmpty()) {
+        MyUI.btnStartServer.addClickListener(event -> {
+            if (MyUI.dataSetPathInput.getValue() != null && !MyUI.dataSetPathInput.getValue().trim().isEmpty()) {
                 if (event.getButton().getCaption().equals("Start Server")) {
-                    readPipelineComponents(myUI.pipelineComponentsLayout);
+                    readPipelineComponents(MyUI.pipelineComponentsLayout);
                     CoreController.buildCommandString();
-                    DataController.createWrapperObjects(myUI.dataSetPathInput.getValue().trim(), myUI.automateListingCheck.getValue());
-                    myUI.jobsStatusGridsView();
-                    if (myUI.userTimeoutCheck.getValue()) {
+                    DataController.createWrapperObjects(MyUI.dataSetPathInput.getValue().trim(), MyUI.automateListingCheck.getValue());
+                    MyUI.jobsStatusGridsView();
+                    if (MyUI.userTimeoutCheck.getValue()) {
                         if (!isTimeOutSeconds)
-                            DataController.setAverageProcessingTime(Long.parseLong(myUI.timeoutInput.getValue()) * 60);
+                            DataController.setAverageProcessingTime(Long.parseLong(MyUI.timeoutInput.getValue()) * 60);
                         else
-                            DataController.setAverageProcessingTime(Long.parseLong(myUI.timeoutInput.getValue()));
+                            DataController.setAverageProcessingTime(Long.parseLong(MyUI.timeoutInput.getValue()));
                     }
                     ServerController.runServer();
-                    FileServer.startFTPServer(8000, myUI.dataSetPathInput.getValue().trim());
-                    ServerController.startServerStatisticsCalc();
+                    FileServer.startFTPServer(8000, MyUI.dataSetPathInput.getValue().trim());
+                    UIController.startServerStatisticsCalc();
                     event.getButton().setCaption("Stop Server");
-                    myUI.automateListingCheck.setEnabled(false);
-                    myUI.pipelineComponentsLayout.setEnabled(false);
+                    MyUI.automateListingCheck.setEnabled(false);
+                    MyUI.pipelineComponentsLayout.setEnabled(false);
                 } else {
                     ServerController.stopServer();
                     FileServer.stopFileServer();
                     DataController.getFilePrefixes().clear();
                     DataController.clearWrapperObjects();
                     DataController.fileDirMonitorDetach();
-                    ServerController.resetServerStatisticsCalc();
-                    myUI.removeJobStatusGridsView();
+                    UIController.resetServerStatisticsCalc();
+                    MyUI.removeJobStatusGridsView();
                     DataController.setAverageProcessingTime(DataController.getAverageProcessingTime());
                     event.getButton().setCaption("Start Server");
-                    myUI.automateListingCheck.setEnabled(true);
-                    myUI.pipelineComponentsLayout.setEnabled(true);
+                    MyUI.automateListingCheck.setEnabled(true);
+                    MyUI.pipelineComponentsLayout.setEnabled(true);
                 }
             } else {
-                myUI.dataSetPathInput.focus();
+                MyUI.dataSetPathInput.focus();
             }
         });
     }
 
     private void jobTimeOutController() {
-        myUI.timeoutInput.setEnabled(false);
-        myUI.selectTimeInputType.setItems("Seconds", "Minutes");
-        myUI.selectTimeInputType.setSelectedItem("Seconds");
-        myUI.timeoutInput.setPlaceholder("Set timeout in seconds");
-        myUI.selectTimeInputType.setEnabled(false);
-        myUI.selectTimeInputType.addValueChangeListener(event -> {
+        MyUI.timeoutInput.setEnabled(false);
+        MyUI.selectTimeInputType.setItems("Seconds", "Minutes");
+        MyUI.selectTimeInputType.setSelectedItem("Seconds");
+        MyUI.timeoutInput.setPlaceholder("Set timeout in seconds");
+        MyUI.selectTimeInputType.setEnabled(false);
+        MyUI.selectTimeInputType.addValueChangeListener(event -> {
             if (event.getValue().equals("Seconds")) {
                 isTimeOutSeconds = true;
-                myUI.timeoutInput.setPlaceholder("Set timeout in seconds");
+                MyUI.timeoutInput.setPlaceholder("Set timeout in seconds");
             } else {
                 isTimeOutSeconds = false;
-                myUI.timeoutInput.setPlaceholder("Set timeout in minutes");
+                MyUI.timeoutInput.setPlaceholder("Set timeout in minutes");
             }
         });
 
-        myUI.userTimeoutCheck.addValueChangeListener(event -> {
+        MyUI.userTimeoutCheck.addValueChangeListener(event -> {
             if (event.getValue()) {
-                myUI.timeoutInput.setEnabled(true);
-                myUI.selectTimeInputType.setEnabled(true);
+                MyUI.timeoutInput.setEnabled(true);
+                MyUI.selectTimeInputType.setEnabled(true);
             } else {
-                myUI.timeoutInput.setEnabled(false);
-                myUI.selectTimeInputType.setEnabled(false);
+                MyUI.timeoutInput.setEnabled(false);
+                MyUI.selectTimeInputType.setEnabled(false);
             }
         });
     }
 
     private void pipelineComponentsGenerator(TabSheet pipelineComponentsLayout, String componentName) {
-        myUI.componentTabLayout = new FormLayout();
-        myUI.componentTabLayout.setMargin(true);
+        MyUI.componentTabLayout = new FormLayout();
+        MyUI.componentTabLayout.setMargin(true);
         CheckBox checkBoxDefaultValues = new CheckBox("Set default values");
         checkBoxDefaultValues.setId(componentName + "_checkbox_prepend_" + componentName);
-        myUI.componentTabLayout.addComponent(checkBoxDefaultValues);
+        MyUI.componentTabLayout.addComponent(checkBoxDefaultValues);
         for (Argument argument : CoreController.getSteps().get(PipelineStep.valueOf(componentName).getValue()).getArguments()) {
             CheckBox checkBox = new CheckBox(argument.getArgName());
             checkBox.setId(componentName + "_checkbox_" + argument.getArgName());
-            myUI.componentTabLayout.addComponents(checkBox);
+            MyUI.componentTabLayout.addComponents(checkBox);
             if (!argument.isFlagOnly()) {
                 TextField argumentInput = new TextField(argument.getArgName());
                 argumentInput.setWidth("300px");
@@ -146,11 +146,11 @@ public class UIController {
                     checkBox.setEnabled(false);
                     argumentInput.setRequiredIndicatorVisible(true);
                 }
-                myUI.componentTabLayout.addComponent(argumentInput);
+                MyUI.componentTabLayout.addComponent(argumentInput);
             } else {
                 if (argument.getArgID().equals("MINIMAP2_GENERATE_CIGAR")) {
-                    CheckBox checkBoxSAM = (CheckBox) UIController.findComponentById(myUI.componentTabLayout, componentName + "_checkbox_" + "Output SAM format (Default PAF format)");
-                    CheckBox checkBoxPAF = (CheckBox) UIController.findComponentById(myUI.componentTabLayout, componentName + "_checkbox_" + argument.getArgName());
+                    CheckBox checkBoxSAM = (CheckBox) UIController.findComponentById(MyUI.componentTabLayout, componentName + "_checkbox_" + "Output SAM format (Default PAF format)");
+                    CheckBox checkBoxPAF = (CheckBox) UIController.findComponentById(MyUI.componentTabLayout, componentName + "_checkbox_" + argument.getArgName());
                     assert checkBoxSAM != null;
                     checkBoxSAM.setValue(true);
                     checkBoxSAM.addValueChangeListener(event -> {
@@ -168,7 +168,7 @@ public class UIController {
             }
 
         }
-        pipelineComponentsLayout.addTab(myUI.componentTabLayout, componentName);
+        pipelineComponentsLayout.addTab(MyUI.componentTabLayout, componentName);
 
         checkBoxDefaultValues.addValueChangeListener(event -> {
             boolean isSetDefaultArg;
@@ -213,5 +213,27 @@ public class UIController {
                 System.out.println(argument.getArgValue());
             }
         }
+    }
+
+    public static void startServerStatisticsCalc() {
+        DataController.calculateStats();
+        Timer t = new Timer();
+        t.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                DataController.calculateStats();
+                MyUI.jobCompletionRateLabel.setValue(String.valueOf(DataController.getJobCompletionRate()));
+                MyUI.jobFailureRateLabel.setValue(String.valueOf(DataController.getJobFailureRate()));
+                MyUI.newJobArrivalRateLabel.setValue(String.valueOf(DataController.getNewJobArrivalRate()));
+                MyUI.newJobRequestRateLabel.setValue(String.valueOf(DataController.getNewJobRequestRate()));
+            }
+        }, DataController.statWatchTimerInMinutes * 60 * 1000, DataController.statWatchTimerInMinutes * 60 * 1000);
+    }
+
+    public static void resetServerStatisticsCalc() {
+        MyUI.jobCompletionRateLabel.setValue(String.valueOf(0));
+        MyUI.jobFailureRateLabel.setValue(String.valueOf(0));
+        MyUI.newJobArrivalRateLabel.setValue(String.valueOf(0));
+        MyUI.newJobRequestRateLabel.setValue(String.valueOf(0));
     }
 }

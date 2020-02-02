@@ -62,7 +62,7 @@
     },
     {
       "argName": "batch size",
-      "argValue": "512",
+      "argValue": "256",
       "argDescription": "batch size -max number of reads loaded at once [512]",
       "flag": "-K",
       "argID": "tobedecided",

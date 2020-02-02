@@ -19,7 +19,11 @@ import java.util.TimerTask;
 
 public class ServerController {
     private static ServerSocket serverSocket;
-    private static MyUI myUI = new MyUI();
+    private MyUI myUI;
+
+    public void initiateServerUISettings(MyUI myUI) {
+        this.myUI = myUI;
+    }
 
     public static void stopServer() {
         try {
@@ -119,7 +123,7 @@ public class ServerController {
                                 receivedObject.setCollectTime(System.currentTimeMillis());
                                 DataController.updateGrids(receivedObject);
                                 DataController.configureJobProcessTime(receivedObject);
-                                myUI.averageProcessingTimeLabel.setValue(DataController.getAverageProcessingTime() + "s");
+                                MyUI.averageProcessingTimeLabel.setValue(DataController.getAverageProcessingTime() + "s");
                                 System.out.println("Average Processing Time: " + DataController.getAverageProcessingTime() + " s");
                             }
                             objectOutStream.close();
@@ -133,28 +137,5 @@ public class ServerController {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    public static void startServerStatisticsCalc() {
-        DataController.calculateStats();
-
-        Timer t = new Timer();
-        t.scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                DataController.calculateStats();
-                myUI.jobCompletionRateLabel.setValue(String.valueOf(DataController.getJobCompletionRate()));
-                myUI.jobFailureRateLabel.setValue(String.valueOf(DataController.getJobFailureRate()));
-                myUI.newJobArrivalRateLabel.setValue(String.valueOf(DataController.getNewJobArrivalRate()));
-                myUI.newJobRequestRateLabel.setValue(String.valueOf(DataController.getNewJobRequestRate()));
-            }
-        }, DataController.statWatchTimerInMinutes * 60 * 1000, DataController.statWatchTimerInMinutes * 60 * 1000);
-    }
-
-    public static void resetServerStatisticsCalc() {
-        myUI.jobCompletionRateLabel.setValue(String.valueOf(0));
-        myUI.jobFailureRateLabel.setValue(String.valueOf(0));
-        myUI.newJobArrivalRateLabel.setValue(String.valueOf(0));
-        myUI.newJobRequestRateLabel.setValue(String.valueOf(0));
     }
 }
