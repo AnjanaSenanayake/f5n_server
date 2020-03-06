@@ -1,3 +1,4 @@
+
 ## f5n_server
 This is a job server to distribute sequencing tasks among portable devices that run [f5n](https://github.com/SanojPunchihewa/f5n)
 
@@ -20,10 +21,21 @@ This is a job server to distribute sequencing tasks among portable devices that 
 ### Flowchart
 ![Diagram](https://github.com/hiruna72/f5n_server/blob/master/f5n_server_flow_chart.png)
 
-### Network
+### Real Time Sequencing Network
 The source code for the Mobile Application can be found [here](https://github.com/SanojPunchihewa/f5n) 
 
 ![Diagram](https://github.com/hiruna72/f5n/blob/master/server_mobile_connection.png)
+
+### Quick Start
+
+1) Download a [dataset](https://github.com/nanopore-wgs-consortium/NA12878/blob/master/Genome.md)
+2) Pair each reads.fastq(a) and the corresponding (multi)fast5 files. refer scripts. 
+3) Compress each pair as a .zip file. (you should now have a folder with many number of .zip files)
+4) Run f5n-server
+5) Configure the folder path to the folder containing the .zip files.
+6) Configure a pipeline
+7) Create jobs
+8) Connect to f5n-server with mobile phones using the local IP address.
 
 ### Features
 #### Single Server Socket

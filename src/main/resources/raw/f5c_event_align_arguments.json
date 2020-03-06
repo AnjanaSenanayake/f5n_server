@@ -2,7 +2,7 @@
   "args": [
     {
       "argName": "fastq/fasta read file",
-      "argValue": null,
+      "argValue": "reads.fastq",
       "argDescription": "fastq/fasta read file",
       "flag": "-r",
       "argID": "F5C_ALIGN_FASTA_FILE",
@@ -14,7 +14,7 @@
     },
     {
       "argName": "sorted bam",
-      "argValue": null,
+      "argValue": "samtool.bam",
       "argDescription": "path to sorted bam file",
       "flag": "-b",
       "argID": "F5C_ALIGN_SORTED_FILE",
@@ -26,7 +26,7 @@
     },
     {
       "argName": "reference genome",
-      "argValue": null,
+      "argValue": "chr22.fa",
       "argDescription": "path to reference genome",
       "flag": "-g",
       "argID": "F5C_ALIGN_REF_FILE",
@@ -38,11 +38,23 @@
     },
     {
       "argName": "output file",
-      "argValue": null,
-      "argDescription": "path to output summary",
+      "argValue": "event-align.txt",
+      "argDescription": "path to event align output",
       "flag": "-o",
       "argID": "F5C_ALIGN_OUTPUT_FILE",
       "isDependentOn": "null",
+      "hasFlag": true,
+      "flagOnly": false,
+      "required": true,
+      "isFile": true
+    },
+    {
+      "argName": "event summary file",
+      "argValue": "event.summary.txt",
+      "argDescription": "path to event summary file",
+      "flag": "--event-summary=",
+      "argID": "F5C_ALIGN_SUMMARY_OUTPUT_FILE",
+      "isDependentOn": null,
       "hasFlag": true,
       "flagOnly": false,
       "required": true,
@@ -74,7 +86,7 @@
     },
     {
       "argName": "bases loaded at once[K / M / G]",
-      "argValue": "2.0M",
+      "argValue": "1.0M",
       "argDescription": "max number of bases loaded at once [2.0M]",
       "flag": "-B",
       "argID": "tobedecided",
