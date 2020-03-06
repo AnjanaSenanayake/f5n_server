@@ -29,7 +29,7 @@ The source code for the Mobile Application can be found [here](https://github.co
 ### Quick Start
 
 1) Download a [dataset](https://github.com/nanopore-wgs-consortium/NA12878/blob/master/Genome.md)
-2) Pair each reads.fastq(a) and the corresponding (multi)fast5 files. 
+2) Pair each reads.fastq(a) and the corresponding (multi)fast5 files. refer scripts. 
 3) Compress each pair as a .zip file. (you should now have a folder with many number of .zip files)
 4) Run f5n-server
 5) Configure the folder path to the folder containing the .zip files.
