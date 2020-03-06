@@ -11,6 +11,7 @@ import com.mobilegenomics.f5n.core.Step;
 import com.mobilegenomics.f5n.support.JSONFileHelper;
 
 import java.util.ArrayList;
+import java.util.Set;
 import java.util.TreeMap;
 
 public class CoreController {
@@ -31,6 +32,16 @@ public class CoreController {
 
     static void eraseSelectedPipeline() {
         selectedPipelineSteps.clear();
+    }
+
+    public static void addPipelineSteps(Set<String> checkedPipelineSteps) {
+        for (PipelineStep pipelineStep : PipelineStep.values()) {
+            if (checkedPipelineSteps.contains(pipelineStep.name())) {
+                CoreController.addPipelineStep(pipelineStep);
+            }
+        }
+        printList();
+        configureSteps();
     }
 
     static void printList() {

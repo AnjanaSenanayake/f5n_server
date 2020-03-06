@@ -2,7 +2,7 @@
   "args": [
     {
       "argName": "input bam",
-      "argValue": null,
+      "argValue": "samtool.bam",
       "argDescription": "Path to the input bam file",
       "flag": null,
       "argID": "SAMTOOL_INDEX_INPUT_FILE",
@@ -14,7 +14,7 @@
     },
     {
       "argName": "threads",
-      "argValue": null,
+      "argValue": "1",
       "argDescription": "Number of threads[1]",
       "flag": "-@",
       "argID": "tobedecided",

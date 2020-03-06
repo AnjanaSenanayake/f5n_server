@@ -116,9 +116,13 @@ public class Argument implements Serializable {
         // TODO Check for NULL
         if (this.setByUser) {
             if (this.argValue != null) {
-                return this.hasFlag ? this.flag + " " + this.argValue : this.argValue;
+                if (this.hasFlag) {
+                    return this.flag.endsWith("=") ? this.flag + this.argValue : this.flag + " " + this.argValue;
+                } else {
+                    return this.argValue;
+                }
             } else {
-                return this.flag;
+                return this.flagOnly ? this.flag : "";
             }
         }
         return "";
