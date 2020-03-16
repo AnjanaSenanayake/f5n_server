@@ -137,6 +137,11 @@ public class UIController {
             CheckBox checkBox = new CheckBox(argument.getArgName());
             checkBox.setId(componentName + "_checkbox_" + argument.getArgName());
             MyUI.componentTabLayout.addComponents(checkBox);
+            if (argument.getArgID().equals("MINIMAP2_REF_FILE") || argument.getArgID().equals("F5C_METH_REF_FILE") ||argument.getArgID().equals("F5C_ALIGN_REF_FILE")) {
+                CheckBox checkBoxExtra = new CheckBox("Use Internal Reference File");
+                checkBoxExtra.setId(componentName + "_checkbox_" + "internal_reference");
+                MyUI.componentTabLayout.addComponents(checkBoxExtra);
+            }
             if (!argument.isFlagOnly()) {
                 TextField argumentInput = new TextField(argument.getArgName());
                 argumentInput.setWidth("300px");
@@ -189,7 +194,8 @@ public class UIController {
     }
 
     public void readPipelineComponents(TabSheet pipelineComponentsLayout) {
-        String DATA_SET_PATH = "$DATA_SET_PATH/";
+        String DATA_SET = "$DATA_SET/";
+        String CUSTOM_DATA = "$CUSTOM_DATA/";
         ArrayList<Argument> arguments;
         for (String componentName : componentsNameList) {
             arguments = CoreController.getSteps().get(PipelineStep.valueOf(componentName).getValue()).getArguments();
@@ -199,7 +205,16 @@ public class UIController {
                 if (checkBox.getValue() && !argument.isFlagOnly()) {
                     TextField argumentInput = (TextField) findComponentById(pipelineComponentsLayout, componentName + "_textfield_" + argument.getArgName());
                     if (argumentInput != null && !argumentInput.isEmpty() && argument.isFile()) {
-                        argument.setArgValue(DATA_SET_PATH + "" + argumentInput.getValue());
+                        if(argument.getArgID().equals("MINIMAP2_REF_FILE") || argument.getArgID().equals("F5C_METH_REF_FILE") ||argument.getArgID().equals("F5C_ALIGN_REF_FILE")) {
+                            CheckBox checkBoxExtra = (CheckBox) findComponentById(pipelineComponentsLayout, componentName + "_checkbox_" + "internal_reference");
+                            assert checkBoxExtra != null;
+                            if (checkBoxExtra.getValue())
+                                argument.setArgValue(CUSTOM_DATA + "" + argumentInput.getValue());
+                            else
+                                argument.setArgValue(DATA_SET + "" + argumentInput.getValue());
+                        } else {
+                            argument.setArgValue(DATA_SET + "" + argumentInput.getValue());
+                        }
                         argument.setSetByUser(true);
                     } else if (argumentInput != null && !argumentInput.isEmpty() && argument.isRequired()) {
                         argument.setArgValue(argumentInput.getValue());
