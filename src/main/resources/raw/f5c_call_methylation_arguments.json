@@ -85,18 +85,6 @@
       "isFile": false
     },
     {
-      "argName": "help",
-      "argValue": null,
-      "argDescription": "help",
-      "flag": "-h",
-      "argID": "tobedecided",
-      "isDependentOn": "argIDofanotherArg",
-      "hasFlag": true,
-      "flagOnly": true,
-      "required": false,
-      "isFile": false
-    },
-    {
       "argName": "min map quality",
       "argValue": "0",
       "argDescription": "minimum mapping quality [30]",
@@ -121,18 +109,6 @@
       "isFile": false
     },
     {
-      "argName": "skip unreadable or terminate",
-      "argValue": "yes",
-      "argDescription": "skip any unreadable fast5 or terminate program [yes]",
-      "flag": "--skip-unreadable=",
-      "argID": "tobedecided",
-      "isDependentOn": "argIDofanotherArg",
-      "hasFlag": true,
-      "flagOnly": false,
-      "required": false,
-      "isFile": false
-    },
-    {
       "argName": "verbosity",
       "argValue": "0",
       "argDescription": "verbosity level [0]",
@@ -141,18 +117,6 @@
       "isDependentOn": "argIDofanotherArg",
       "hasFlag": true,
       "flagOnly": false,
-      "required": false,
-      "isFile": false
-    },
-    {
-      "argName": "version",
-      "argValue": null,
-      "argDescription": "print version",
-      "flag": "--version",
-      "argID": "tobedecided",
-      "isDependentOn": "argIDofanotherArg",
-      "hasFlag": true,
-      "flagOnly": true,
       "required": false,
       "isFile": false
     }
