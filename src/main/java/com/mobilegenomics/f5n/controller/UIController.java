@@ -195,7 +195,7 @@ public class UIController {
 
     public void readPipelineComponents(TabSheet pipelineComponentsLayout) {
         String DATA_SET = "$DATA_SET/";
-        String CUSTOM_DATA = "$CUSTOM_DATA/";
+        String REF_GNOME = "$REF_GNOME/";
         ArrayList<Argument> arguments;
         for (String componentName : componentsNameList) {
             arguments = CoreController.getSteps().get(PipelineStep.valueOf(componentName).getValue()).getArguments();
@@ -209,7 +209,7 @@ public class UIController {
                             CheckBox checkBoxExtra = (CheckBox) findComponentById(pipelineComponentsLayout, componentName + "_checkbox_" + "internal_reference");
                             assert checkBoxExtra != null;
                             if (checkBoxExtra.getValue())
-                                argument.setArgValue(CUSTOM_DATA + "" + argumentInput.getValue());
+                                argument.setArgValue(REF_GNOME + "" + argumentInput.getValue());
                             else
                                 argument.setArgValue(DATA_SET + "" + argumentInput.getValue());
                         } else {
