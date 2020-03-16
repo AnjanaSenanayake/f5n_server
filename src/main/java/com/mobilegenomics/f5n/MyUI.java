@@ -223,8 +223,8 @@ public class MyUI extends UI {
                     newResultSummary.append("\n");
                     newResultSummary.append("Client Address: ").append(wrapper.getClientIP());
                     newResultSummary.append("\n");
-                    long jobProcessTime = (wrapper.getCollectTime() - wrapper.getReleaseTime())/(60000);
-                    newResultSummary.append("Total Job Processing Time: ").append(jobProcessTime).append("ms");
+                    long jobProcessTime = (wrapper.getCollectTime() - wrapper.getReleaseTime())/(60000L);
+                    newResultSummary.append("Total Job Processing Time: ").append(jobProcessTime).append(" mins");
                     label.setValue(newResultSummary.toString());
                     window.setContent(label);
                     addWindowToParent(window);
