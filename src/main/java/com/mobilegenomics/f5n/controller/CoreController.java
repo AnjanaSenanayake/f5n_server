@@ -65,10 +65,10 @@ public class CoreController {
             case MINIMAP2_SEQUENCE_ALIGNMENT:
                 rawFile = "minimap2.json";
                 break;
-            case SAMTOOL_SORT:
+            case SAMTOOLS_SORT:
                 rawFile = "samtool_sort_arguments.json";
                 break;
-            case SAMTOOL_INDEX:
+            case SAMTOOLS_INDEX:
                 rawFile = "samtool_index_arguments.json";
                 break;
             case F5C_INDEX:
