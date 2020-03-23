@@ -137,7 +137,7 @@ public class UIController {
             CheckBox checkBox = new CheckBox(argument.getArgName());
             checkBox.setId(componentName + "_checkbox_" + argument.getArgName());
             MyUI.componentTabLayout.addComponents(checkBox);
-            if (argument.getArgID().equals("MINIMAP2_REF_FILE") || argument.getArgID().equals("F5C_METH_REF_FILE") ||argument.getArgID().equals("F5C_ALIGN_REF_FILE")) {
+            if (argument.getArgID().equals("MINIMAP2_REF_FILE") || argument.getArgID().equals("F5C_METH_REF_FILE") || argument.getArgID().equals("F5C_ALIGN_REF_FILE")) {
                 CheckBox checkBoxExtra = new CheckBox("Use Internal Reference File");
                 checkBoxExtra.setId(componentName + "_checkbox_" + "internal_reference");
                 MyUI.componentTabLayout.addComponents(checkBoxExtra);
@@ -184,8 +184,7 @@ public class UIController {
                     assert argumentInput != null;
                     if (isSetDefaultArg) {
                         argumentInput.setValue(argument.getArgValue());
-                    }
-                    else {
+                    } else {
                         argumentInput.setValue("");
                     }
                 }
@@ -205,7 +204,7 @@ public class UIController {
                 if (checkBox.getValue() && !argument.isFlagOnly()) {
                     TextField argumentInput = (TextField) findComponentById(pipelineComponentsLayout, componentName + "_textfield_" + argument.getArgName());
                     if (argumentInput != null && !argumentInput.isEmpty() && argument.isFile()) {
-                        if(argument.getArgID().equals("MINIMAP2_REF_FILE") || argument.getArgID().equals("F5C_METH_REF_FILE") ||argument.getArgID().equals("F5C_ALIGN_REF_FILE")) {
+                        if (argument.getArgID().equals("MINIMAP2_REF_FILE") || argument.getArgID().equals("F5C_METH_REF_FILE") || argument.getArgID().equals("F5C_ALIGN_REF_FILE")) {
                             CheckBox checkBoxExtra = (CheckBox) findComponentById(pipelineComponentsLayout, componentName + "_checkbox_" + "internal_reference");
                             assert checkBoxExtra != null;
                             if (checkBoxExtra.getValue())
@@ -216,7 +215,7 @@ public class UIController {
                             argument.setArgValue(DATA_SET + "" + argumentInput.getValue());
                         }
                         argument.setSetByUser(true);
-                    } else if (argumentInput != null && !argumentInput.isEmpty() && argument.isRequired()) {
+                    } else if (argumentInput != null && !argumentInput.isEmpty()) {
                         argument.setArgValue(argumentInput.getValue());
                         argument.setSetByUser(true);
                     }
