@@ -229,7 +229,7 @@ public class MyUI extends UI {
                     window.setContent(label);
                     addWindowToParent(window);
                 } else {
-                    Notification.show("Summery",
+                    Notification.show("Summary",
                             "Job result is pending",
                             Notification.Type.HUMANIZED_MESSAGE);
                 }
