@@ -1,7 +1,6 @@
 package com.mobilegenomics.f5n;
 
 import com.mobilegenomics.f5n.controller.DataController;
-import com.mobilegenomics.f5n.controller.ServerController;
 import com.mobilegenomics.f5n.controller.UIController;
 import com.mobilegenomics.f5n.dto.State;
 import com.mobilegenomics.f5n.dto.WrapperObject;
@@ -208,7 +207,7 @@ public class MyUI extends UI {
     private static void gridAllocatedJobsAddSummeryColumn() {
         gridAllocatedJobs.addComponentColumn(wrapper -> {
             Button button = new Button();
-            button.setCaption("Summery");
+            button.setCaption("Summary");
             button.addClickListener(event -> {
                 if (wrapper.getState() == State.SUCCESS) {
                     window = new Window();
@@ -223,13 +222,13 @@ public class MyUI extends UI {
                     newResultSummary.append("\n");
                     newResultSummary.append("Client Address: ").append(wrapper.getClientIP());
                     newResultSummary.append("\n");
-                    long jobProcessTime = (wrapper.getCollectTime() - wrapper.getReleaseTime())/(60000L);
+                    long jobProcessTime = (wrapper.getCollectTime() - wrapper.getReleaseTime()) / (60000L);
                     newResultSummary.append("Total Job Processing Time: ").append(jobProcessTime).append(" mins");
                     label.setValue(newResultSummary.toString());
                     window.setContent(label);
                     addWindowToParent(window);
                 } else {
-                    Notification.show("Summery",
+                    Notification.show("Summary",
                             "Job result is pending",
                             Notification.Type.HUMANIZED_MESSAGE);
                 }
@@ -245,7 +244,7 @@ public class MyUI extends UI {
     @WebServlet(urlPatterns = "/*", name = "MyUIServlet", asyncSupported = true)
     @VaadinServletConfiguration(ui = MyUI.class, productionMode = false)
     public static class MyUIServlet extends VaadinServlet
-            implements SessionInitListener, SessionDestroyListener  {
+            implements SessionInitListener, SessionDestroyListener {
         private static final long serialVersionUID = -706128960774628840L;
 
         @Override
