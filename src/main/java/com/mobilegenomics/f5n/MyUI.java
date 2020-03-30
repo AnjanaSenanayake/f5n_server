@@ -17,6 +17,8 @@ import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * This UI is the application entry point. A UI may either represent a browser window
@@ -196,6 +198,20 @@ public class MyUI extends UI {
         gridAllocatedJobs.setDataProvider(DataController.setListDataProvider(State.PENDING));
         gridAllocatedJobs.addColumn(WrapperObject::getPrefix).setCaption("Job ID");
         gridAllocatedJobs.addColumn(WrapperObject::getState).setCaption("State");
+        gridAllocatedJobs.addColumn(wrapperObject -> {
+            SimpleDateFormat sdf = new SimpleDateFormat("hh:mm:ss");
+            Date date = new Date(wrapperObject.getReleaseTime());
+            return sdf.format(date);
+        }).setCaption("Release Time");
+        gridAllocatedJobs.addColumn(wrapperObject -> {
+            SimpleDateFormat sdf = new SimpleDateFormat("hh:mm:ss");
+            Date date;
+            if (wrapperObject.getCollectTime() != null) {
+                date = new Date(wrapperObject.getCollectTime());
+                return sdf.format(date);
+            } else
+                return "---";
+        }).setCaption("Collect Time");
         gridAllocatedJobs.addColumn(WrapperObject::getClientIP).setCaption("Client IP");
         gridAllocatedJobsAddSummeryColumn();
 

@@ -283,23 +283,6 @@ public class DataController {
         totalRunningJobs = pendingWrapperObjectList.size();
     }
 
-//    TODO Call this method at the start of the server
-//    DataController.calculateStats();
-//
-//    TODO Call a timer method to repeatedly calculate the stats and update the UI
-//    Timer t = new Timer();
-//    t.scheduleAtFixedRate(new TimerTask() {
-//    @Override
-//        public void run() {
-//            DataController.calculateStats();
-//            TODO Update UI with the following stats
-//            DataController.getJobCompletionRate();
-//            DataController.getJobFailureRate();
-//            DataController.getNewJobArrivalRate();
-//            DataController.getNewJobRequestRate();
-//        }
-//    }, DataController.statWatchTimerInMinutes*60*1000, DataController.statWatchTimerInMinutes*60*1000);
-
     // TODO Complete the following two prediction methods relating idleJobLimit
     private static void predictNumberOfIdleJobs(long time) {
         totalPredictedIdleJobs = totalIdleJobs - (int) (newJobRequestRate * time) + (int) (newJobArrivalRate * time) + (int) (jobFailureRate * time);
