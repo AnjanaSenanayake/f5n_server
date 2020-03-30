@@ -33,6 +33,7 @@ public class MyUI extends UI {
     public static Label headerLabel;
     public static Label networkHostLabel;
     public static Label checkBoxGroupLabel;
+    public static Label serverStartTimeLabel;
     public static Label averageProcessingTimeLabel;
     public static Label jobCompletionRateLabel;
     public static Label jobFailureRateLabel;
@@ -143,6 +144,11 @@ public class MyUI extends UI {
 
     private void serverStatisticsCalcView() {
         FormLayout statisticsLayout = new FormLayout();
+        serverStartTimeLabel = new Label();
+        serverStartTimeLabel.setCaption("Server started at: ");
+        serverStartTimeLabel.setStyleName(ValoTheme.LABEL_BOLD);
+        serverStartTimeLabel.setStyleName(ValoTheme.LABEL_NO_MARGIN);
+        serverStartTimeLabel.setValue("-");
         averageProcessingTimeLabel = new Label();
         averageProcessingTimeLabel.setCaption("Average Processing Time");
         averageProcessingTimeLabel.setStyleName(ValoTheme.LABEL_BOLD);
@@ -169,7 +175,7 @@ public class MyUI extends UI {
         newJobRequestRateLabel.setStyleName(ValoTheme.LABEL_NO_MARGIN);
         newJobRequestRateLabel.setValue("0");
 
-        statisticsLayout.addComponents(averageProcessingTimeLabel, jobCompletionRateLabel, jobFailureRateLabel, newJobArrivalRateLabel, newJobRequestRateLabel);
+        statisticsLayout.addComponents(serverStartTimeLabel, averageProcessingTimeLabel, jobCompletionRateLabel, jobFailureRateLabel, newJobArrivalRateLabel, newJobRequestRateLabel);
         statisticsLayout.setMargin(false);
         rootLayout.addComponent(statisticsLayout);
     }

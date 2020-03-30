@@ -6,7 +6,9 @@ import com.mobilegenomics.f5n.core.PipelineStep;
 import com.mobilegenomics.f5n.support.FileServer;
 import com.vaadin.ui.*;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -232,6 +234,9 @@ public class UIController {
     public static void startServerStatisticsCalc() {
         DataController.calculateStats();
         Timer t = new Timer();
+        SimpleDateFormat sdf = new SimpleDateFormat("hh:mm:ss a");
+        Calendar now = Calendar.getInstance();
+        MyUI.serverStartTimeLabel.setValue(sdf.format(now.getTime()));
         t.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
@@ -245,6 +250,7 @@ public class UIController {
     }
 
     public static void resetServerStatisticsCalc() {
+        MyUI.serverStartTimeLabel.setValue("-");
         MyUI.jobCompletionRateLabel.setValue(String.valueOf(0));
         MyUI.jobFailureRateLabel.setValue(String.valueOf(0));
         MyUI.newJobArrivalRateLabel.setValue(String.valueOf(0));
