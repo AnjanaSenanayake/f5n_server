@@ -26,7 +26,7 @@
     },
     {
       "argName": "reference genome",
-      "argValue": "chr22.fa",
+      "argValue": "ref.fa",
       "argDescription": "path to reference genome",
       "flag": "-g",
       "argID": "F5C_ALIGN_REF_FILE",
