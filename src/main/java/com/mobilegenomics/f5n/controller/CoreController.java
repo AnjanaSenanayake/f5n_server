@@ -80,6 +80,9 @@ public class CoreController {
             case F5C_EVENT_ALIGNMENT:
                 rawFile = "f5c_event_align_arguments.json";
                 break;
+            case F5C_METH_FREQ:
+                rawFile = "f5c_meth_freq_arguments.json";
+                break;
             default:
                 System.err.println("Invalid Pipeline Step");
                 break;

@@ -38,7 +38,7 @@ public class UIController {
     }
 
     private void pipelineComponentsController() {
-        MyUI.pipelineComponentsCheckGroup.setItems("MINIMAP2_SEQUENCE_ALIGNMENT", "SAMTOOLS_SORT", "SAMTOOLS_INDEX", "F5C_INDEX", "F5C_CALL_METHYLATION", "F5C_EVENT_ALIGNMENT");
+        MyUI.pipelineComponentsCheckGroup.setItems("MINIMAP2_SEQUENCE_ALIGNMENT", "SAMTOOLS_SORT", "SAMTOOLS_INDEX", "F5C_INDEX", "F5C_CALL_METHYLATION", "F5C_EVENT_ALIGNMENT", "F5C_METH_FREQ");
 
         MyUI.pipelineComponentsCheckGroup.addValueChangeListener(event -> {
             if (MyUI.jobStatusGridsLayout != null)
