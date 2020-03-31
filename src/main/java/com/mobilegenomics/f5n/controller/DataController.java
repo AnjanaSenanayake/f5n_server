@@ -3,10 +3,12 @@ package com.mobilegenomics.f5n.controller;
 import com.mobilegenomics.f5n.core.Step;
 import com.mobilegenomics.f5n.dto.State;
 import com.mobilegenomics.f5n.dto.WrapperObject;
+import com.mobilegenomics.f5n.support.TimeFormat;
 import com.vaadin.data.provider.ListDataProvider;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
@@ -122,6 +124,33 @@ public class DataController {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    public static WrapperObject addServerSideReport(WrapperObject wrapper) {
+        StringBuilder serverSideReport = new StringBuilder();
+        serverSideReport.append(wrapper.getResultSummery());
+        serverSideReport.append("\n");
+        serverSideReport.append("Processed Job Prefix: ").append(wrapper.getPrefix());
+        serverSideReport.append("\n");
+        serverSideReport.append("Client Address: ").append(wrapper.getClientIP());
+        serverSideReport.append("\n");
+        String jobProcessTime = TimeFormat.millisToShortDHMS(wrapper.getCollectTime() - wrapper.getReleaseTime());
+        serverSideReport.append(String.format("Total Job Processing Time: %s", jobProcessTime));
+        wrapper.setResultSummery(serverSideReport.toString());
+        return wrapper;
+    }
+
+    public static void writeSummaryLogToFile(String datasetName, String summary) {
+        File summaryFile = new File(pathToDataDir + "/outputs/" + datasetName + "_result_summary.txt");
+        try {
+            summaryFile.createNewFile(); // if file already exists will do nothing
+            PrintWriter writer = new PrintWriter(summaryFile, "UTF-8");
+            writer.write(summary);
+            writer.flush();
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 

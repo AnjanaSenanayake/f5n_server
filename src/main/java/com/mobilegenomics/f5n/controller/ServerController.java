@@ -14,8 +14,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class ServerController {
     private static ServerSocket serverSocket;
@@ -123,6 +121,8 @@ public class ServerController {
                                 receivedObject.setCollectTime(System.currentTimeMillis());
                                 DataController.updateGrids(receivedObject);
                                 DataController.configureJobProcessTime(receivedObject);
+                                receivedObject = DataController.addServerSideReport(receivedObject);
+                                DataController.writeSummaryLogToFile(receivedObject.getPrefix(), receivedObject.getResultSummery());
                                 MyUI.averageProcessingTimeLabel.setValue(DataController.getAverageProcessingTime() + "s");
                                 System.out.println("Average Processing Time: " + DataController.getAverageProcessingTime() + " s");
                             }

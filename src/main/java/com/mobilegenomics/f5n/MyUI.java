@@ -230,16 +230,7 @@ public class MyUI extends UI {
                     content.setMargin(true);
                     Label label = new Label();
                     label.setContentMode(ContentMode.PREFORMATTED);
-                    StringBuilder newResultSummary = new StringBuilder();
-                    newResultSummary.append(wrapper.getResultSummery());
-                    newResultSummary.append("\n");
-                    newResultSummary.append("Processed Job Prefix: ").append(wrapper.getPrefix());
-                    newResultSummary.append("\n");
-                    newResultSummary.append("Client Address: ").append(wrapper.getClientIP());
-                    newResultSummary.append("\n");
-                    String jobProcessTime = TimeFormat.millisToDateTime(wrapper.getCollectTime() - wrapper.getReleaseTime());
-                    newResultSummary.append(String.format("Total Job Processing Time: %s", jobProcessTime));
-                    label.setValue(newResultSummary.toString());
+                    label.setValue(wrapper.getResultSummery());
                     content.addComponent(label);
                     window.setContent(content);
                     getCurrent().addWindow(window);
