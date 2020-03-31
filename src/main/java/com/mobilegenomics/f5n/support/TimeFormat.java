@@ -1,6 +1,8 @@
 package com.mobilegenomics.f5n.support;
 
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.concurrent.TimeUnit;
 
 public class TimeFormat {
@@ -29,4 +31,9 @@ public class TimeFormat {
         return DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM).format(date);
     }
 
+    public static String currentDateTime() {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-YY hh:mm:ss a");
+        Calendar now = Calendar.getInstance();
+        return sdf.format(now.getTime());
+    }
 }

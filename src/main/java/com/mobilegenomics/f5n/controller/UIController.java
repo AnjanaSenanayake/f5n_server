@@ -4,11 +4,10 @@ import com.mobilegenomics.f5n.MyUI;
 import com.mobilegenomics.f5n.core.Argument;
 import com.mobilegenomics.f5n.core.PipelineStep;
 import com.mobilegenomics.f5n.support.FileServer;
+import com.mobilegenomics.f5n.support.TimeFormat;
 import com.vaadin.ui.*;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -236,9 +235,7 @@ public class UIController {
     public static void startServerStatisticsCalc() {
         DataController.calculateStats();
         Timer t = new Timer();
-        SimpleDateFormat sdf = new SimpleDateFormat("hh:mm:ss a");
-        Calendar now = Calendar.getInstance();
-        MyUI.serverStartTimeLabel.setValue(sdf.format(now.getTime()));
+        MyUI.serverStartTimeLabel.setValue(TimeFormat.currentDateTime());
         t.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
