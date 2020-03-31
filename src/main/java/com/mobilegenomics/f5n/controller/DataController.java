@@ -27,7 +27,7 @@ public class DataController {
     private static Long userSetTimeout = 0L;
     private static boolean isTimeoutSetByUser = false;
     private static Long successJobs = 0L;
-    private static WrapperObject[] wrapperObjectsArray;
+    private static String pathToDataDir;
     private static ArrayList<WrapperObject> idleWrapperObjectList;
     private static ArrayList<WrapperObject> pendingWrapperObjectList;
     private static String SPLITTER = ".zip";
@@ -56,8 +56,8 @@ public class DataController {
         }
     }
 
-    static void readFilesFromDir(String pathToDir) {
-        File folder = new File(pathToDir);
+    static void readFilesFromDir() {
+        File folder = new File(pathToDataDir);
         File[] listOfFiles = folder.listFiles();
 
         if (listOfFiles != null) {
@@ -68,7 +68,7 @@ public class DataController {
                 }
             }
         }
-        createOutputDirectory(pathToDir);
+        createOutputDirectory(pathToDataDir);
     }
 
     static void createOutputDirectory(String pathToDir) {
@@ -78,15 +78,15 @@ public class DataController {
         }
     }
 
-    private static void fileDirMonitorAttach(String pathToDir, boolean isAutomate) {
+    private static void fileDirMonitorAttach(boolean isAutomate) {
         if (isAutomate) {
             new Thread(() -> {
-                int filesCount = Objects.requireNonNull(new File(pathToDir).list()).length;
+                int filesCount = Objects.requireNonNull(new File(pathToDataDir).list()).length;
                 System.out.println(filesCount);
 
                 try {
                     watchService = FileSystems.getDefault().newWatchService();
-                    Path path = Paths.get(pathToDir);
+                    Path path = Paths.get(pathToDataDir);
                     path.register(
                             watchService,
                             StandardWatchEventKinds.ENTRY_CREATE,
@@ -101,7 +101,7 @@ public class DataController {
                             System.out.println("Event kind:" + event.kind() + ". File affected: " + file);
                             filePrefixes.add(prefix);
                             ArrayList<Step> steps = new ArrayList<>(CoreController.getSteps().values());
-                            WrapperObject newWrapperObject = new WrapperObject(prefix, State.IDLE, pathToDir, steps);
+                            WrapperObject newWrapperObject = new WrapperObject(prefix, State.IDLE, pathToDataDir, steps);
                             updateGrids(newWrapperObject);
                         }
                         key.reset();
@@ -125,8 +125,8 @@ public class DataController {
         }
     }
 
-    static void createWrapperObjects(String pathToDir, boolean isAutomate) {
-        readFilesFromDir(pathToDir);
+    static void createWrapperObjects(boolean isAutomate) {
+        readFilesFromDir();
         idleWrapperObjectList = new ArrayList<>();
         WrapperObject newWrapperObject;
         ArrayList<Step> steps = new ArrayList<>(CoreController.getSteps().values());
@@ -134,7 +134,7 @@ public class DataController {
             newWrapperObject = new WrapperObject(prefix, State.IDLE, "http://" + getLocalIPAddress() + ":8000/", steps);
             idleWrapperObjectList.add(newWrapperObject);
         }
-        fileDirMonitorAttach(pathToDir, isAutomate);
+        fileDirMonitorAttach(isAutomate);
     }
 
     public static void clearWrapperObjects() {
@@ -300,4 +300,11 @@ public class DataController {
         totalPredictedRunningJobs = totalRunningJobs - (int) (jobCompletionRate * totalRunningJobs) + (int) (newJobRequestRate * time);
     }
 
+    public static String getPathToDataDir() {
+        return pathToDataDir;
+    }
+
+    public static void setPathToDataDir(String pathToDataDir) {
+        DataController.pathToDataDir = pathToDataDir;
+    }
 }

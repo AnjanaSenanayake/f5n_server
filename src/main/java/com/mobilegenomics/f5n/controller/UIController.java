@@ -68,7 +68,8 @@ public class UIController {
                 if (event.getButton().getCaption().equals("Start Server")) {
                     readPipelineComponents(MyUI.pipelineComponentsLayout);
                     CoreController.buildCommandString();
-                    DataController.createWrapperObjects(MyUI.dataSetPathInput.getValue().trim(), MyUI.automateListingCheck.getValue());
+                    DataController.setPathToDataDir(MyUI.dataSetPathInput.getValue().trim());
+                    DataController.createWrapperObjects(MyUI.automateListingCheck.getValue());
                     MyUI.jobsStatusGridsView();
                     if (MyUI.userTimeoutCheck.getValue()) {
                         if (!isTimeOutSeconds)
