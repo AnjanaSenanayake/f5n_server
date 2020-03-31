@@ -14,7 +14,7 @@
     },
     {
       "argName": "meth freq file",
-      "argValue": "meth.freq",
+      "argValue": "freq.tsv",
       "argDescription": "Methylation frequency file",
       "flag": "-o",
       "argID": "F5C_METH_FREQ_FILE",
