@@ -68,6 +68,14 @@ public class DataController {
                 }
             }
         }
+        createOutputDirectory(pathToDir);
+    }
+
+    static void createOutputDirectory(String pathToDir) {
+        File outputDir = new File(pathToDir + "/outputs");
+        if (!outputDir.exists()) {
+            outputDir.mkdir();
+        }
     }
 
     private static void fileDirMonitorAttach(String pathToDir, boolean isAutomate) {
