@@ -232,9 +232,10 @@ public class MyUI extends UI {
             button.setCaption("Summary");
             button.addClickListener(event -> {
                 if (wrapper.getState() == State.SUCCESS) {
-                    window = new Window();
-                    window.setWidth("600px");
-                    window.setHeight("400px");
+                    final Window window = new Window("Job Result Summary");
+                    window.setWidth(1000.0f, Unit.PIXELS);
+                    final FormLayout content = new FormLayout();
+                    content.setMargin(true);
                     Label label = new Label();
                     label.setContentMode(ContentMode.PREFORMATTED);
                     StringBuilder newResultSummary = new StringBuilder();
@@ -247,8 +248,9 @@ public class MyUI extends UI {
                     double jobProcessTime = ((double) (wrapper.getCollectTime() - wrapper.getReleaseTime()) / (60000d));
                     newResultSummary.append(String.format("Total Job Processing Time: %.2f mins", jobProcessTime));
                     label.setValue(newResultSummary.toString());
-                    window.setContent(label);
-                    addWindowToParent(window);
+                    content.addComponent(label);
+                    window.setContent(content);
+                    getCurrent().addWindow(window);
                 } else {
                     Notification.show("Summary",
                             "Job result is pending",
@@ -257,10 +259,6 @@ public class MyUI extends UI {
             });
             return button;
         }).setCaption("Summary");
-    }
-
-    public static void addWindowToParent(Window window) {
-        getCurrent().addWindow(window);
     }
 
     @WebServlet(urlPatterns = "/*", name = "MyUIServlet", asyncSupported = true)
