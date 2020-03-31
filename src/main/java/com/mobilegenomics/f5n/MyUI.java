@@ -4,6 +4,7 @@ import com.mobilegenomics.f5n.controller.DataController;
 import com.mobilegenomics.f5n.controller.UIController;
 import com.mobilegenomics.f5n.dto.State;
 import com.mobilegenomics.f5n.dto.WrapperObject;
+import com.mobilegenomics.f5n.support.TimeFormat;
 import com.vaadin.annotations.PreserveOnRefresh;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.VaadinServletConfiguration;
@@ -245,8 +246,8 @@ public class MyUI extends UI {
                     newResultSummary.append("\n");
                     newResultSummary.append("Client Address: ").append(wrapper.getClientIP());
                     newResultSummary.append("\n");
-                    double jobProcessTime = ((double) (wrapper.getCollectTime() - wrapper.getReleaseTime()) / (60000d));
-                    newResultSummary.append(String.format("Total Job Processing Time: %.2f mins", jobProcessTime));
+                    String jobProcessTime = TimeFormat.millisToDateTime(wrapper.getCollectTime() - wrapper.getReleaseTime());
+                    newResultSummary.append(String.format("Total Job Processing Time: %s", jobProcessTime));
                     label.setValue(newResultSummary.toString());
                     content.addComponent(label);
                     window.setContent(content);
