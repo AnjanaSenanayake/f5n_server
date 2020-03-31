@@ -185,6 +185,8 @@ public class UIController {
                     TextField argumentInput = (TextField) UIController.findComponentById(pipelineComponentsLayout, componentName + "_textfield_" + argument.getArgName());
                     assert argumentInput != null;
                     if (isSetDefaultArg) {
+                        argument.setArgValue(argument.getArgValue().replace("$DATA_SET/", ""));
+                        argument.setArgValue(argument.getArgValue().replace("$REF_GNOME/", ""));
                         argumentInput.setValue(argument.getArgValue());
                     } else {
                         argumentInput.setValue("");
