@@ -4,6 +4,7 @@ import com.mobilegenomics.f5n.core.Step;
 import com.mobilegenomics.f5n.dto.State;
 import com.mobilegenomics.f5n.dto.WrapperObject;
 import com.mobilegenomics.f5n.support.TimeFormat;
+import com.vaadin.data.provider.DataProviderListener;
 import com.vaadin.data.provider.ListDataProvider;
 
 import java.io.File;
@@ -30,6 +31,7 @@ public class DataController {
     private static boolean isTimeoutSetByUser = false;
     private static Long successJobs = 0L;
     private static String pathToDataDir;
+    private static StringBuilder serverLogBuffer = new StringBuilder();
     private static ArrayList<WrapperObject> idleWrapperObjectList;
     private static ArrayList<WrapperObject> pendingWrapperObjectList;
     private static String SPLITTER = ".zip";
@@ -147,6 +149,19 @@ public class DataController {
             summaryFile.createNewFile(); // if file already exists will do nothing
             PrintWriter writer = new PrintWriter(summaryFile, "UTF-8");
             writer.write(summary);
+            writer.flush();
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void generateServerLog() {
+        File serverLogFile = new File(pathToDataDir + "/outputs/f5n_server_log_" + TimeFormat.currentDateTime() + ".txt");
+        try {
+            serverLogFile.createNewFile(); // if file already exists will do nothing
+            PrintWriter writer = new PrintWriter(serverLogFile, "UTF-8");
+            writer.write(serverLogBuffer.toString());
             writer.flush();
             writer.close();
         } catch (IOException e) {
@@ -335,5 +350,44 @@ public class DataController {
 
     public static void setPathToDataDir(String pathToDataDir) {
         DataController.pathToDataDir = pathToDataDir;
+    }
+
+    public static void runLogger() {
+        logServer("####################### Server log on " + TimeFormat.currentDateTime() + " #######################");
+        logServer("\nServer started at " + TimeFormat.currentDateTime());
+        if (!idleWrapperObjectList.isEmpty()) {
+            logServer("\nPipeline Steps" + idleWrapperObjectList.get(0).toStringPretty());
+            logServer("File server at: " + idleWrapperObjectList.get(0).getPathToDataDir());
+            logServer("\n");
+            idleListDataProvider.addDataProviderListener((DataProviderListener<WrapperObject>) event -> {
+                logServer("------------------ IDLE Jobs at " + TimeFormat.currentDateTime() + " ------------------");
+                logServer("Remaining idle jobs: " + idleListDataProvider.getItems().size());
+                for (WrapperObject wrapperObject : idleListDataProvider.getItems()) {
+                    logServer("Idle   " + wrapperObject.getPrefix());
+                }
+            });
+            logServer("\n\n");
+        }
+
+        busyListDataProvider.addDataProviderListener((DataProviderListener<WrapperObject>) event -> {
+            logServer("------------ PENDING/COMPLETE Jobs at " + TimeFormat.currentDateTime() + " ------------");
+            logServer("Pending/Complete jobs: " + busyListDataProvider.getItems().size());
+            for (WrapperObject wrapperObject : busyListDataProvider.getItems()) {
+                if (wrapperObject.getCollectTime() != null) {
+                    logServer(wrapperObject.getState().name() + "   " + wrapperObject.getPrefix() + "   " + TimeFormat.millisToDateTime(wrapperObject.getReleaseTime()) + "   " + TimeFormat.millisToDateTime(wrapperObject.getCollectTime()) + "   " + wrapperObject.getClientIP());
+                } else {
+                    logServer(wrapperObject.getState().name() + "   " + wrapperObject.getPrefix() + "   " + wrapperObject.getReleaseTime() + "   " + "---" + "   " + wrapperObject.getClientIP());
+                }
+            }
+            logServer("\n");
+        });
+    }
+
+    public StringBuilder getServerLogBuffer() {
+        return serverLogBuffer;
+    }
+
+    public static void logServer(String log) {
+        serverLogBuffer.append(log).append("\n");
     }
 }

@@ -72,12 +72,14 @@ public class UIController {
                     DataController.createWrapperObjects(MyUI.automateListingCheck.getValue());
                     MyUI.jobsStatusGridsView();
                     if (MyUI.userTimeoutCheck.getValue()) {
-                        if (!isTimeOutSeconds)
+                        if (!isTimeOutSeconds) {
                             DataController.setAverageProcessingTime(Long.parseLong(MyUI.timeoutInput.getValue()) * 60);
-                        else
+                        } else {
                             DataController.setAverageProcessingTime(Long.parseLong(MyUI.timeoutInput.getValue()));
+                        }
                     }
                     ServerController.runServer();
+                    DataController.runLogger();
                     FileServer.startFTPServer(8000, MyUI.dataSetPathInput.getValue().trim());
                     UIController.startServerStatisticsCalc();
                     event.getButton().setCaption("Stop Server");
@@ -92,6 +94,7 @@ public class UIController {
                     UIController.resetServerStatisticsCalc();
                     MyUI.removeJobStatusGridsView();
                     DataController.setAverageProcessingTime(DataController.getAverageProcessingTime());
+                    DataController.generateServerLog();
                     event.getButton().setCaption("Start Server");
                     MyUI.automateListingCheck.setEnabled(true);
                     MyUI.pipelineComponentsLayout.setEnabled(true);
