@@ -1,4 +1,4 @@
-package com.mobilegenomics.f5n.core;
+package com.mobilegenomics.genopo.core;
 
 import java.io.Serializable;
 import java.util.ArrayList;

@@ -1,10 +1,10 @@
-package com.mobilegenomics.f5n.controller;
+package com.mobilegenomics.genopo.controller;
 
-import com.mobilegenomics.f5n.MyUI;
-import com.mobilegenomics.f5n.core.Argument;
-import com.mobilegenomics.f5n.core.PipelineStep;
-import com.mobilegenomics.f5n.support.FileServer;
-import com.mobilegenomics.f5n.support.TimeFormat;
+import com.mobilegenomics.genopo.MyUI;
+import com.mobilegenomics.genopo.core.Argument;
+import com.mobilegenomics.genopo.core.PipelineStep;
+import com.mobilegenomics.genopo.support.FileServer;
+import com.mobilegenomics.genopo.support.TimeFormat;
 import com.vaadin.ui.*;
 
 import java.util.ArrayList;
