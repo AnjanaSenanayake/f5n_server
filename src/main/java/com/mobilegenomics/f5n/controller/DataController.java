@@ -1,9 +1,9 @@
-package com.mobilegenomics.genopo.controller;
+package com.mobilegenomics.f5n.controller;
 
-import com.mobilegenomics.genopo.core.Step;
-import com.mobilegenomics.genopo.dto.State;
-import com.mobilegenomics.genopo.dto.WrapperObject;
-import com.mobilegenomics.genopo.support.TimeFormat;
+import com.mobilegenomics.f5n.core.Step;
+import com.mobilegenomics.f5n.dto.State;
+import com.mobilegenomics.f5n.dto.WrapperObject;
+import com.mobilegenomics.f5n.support.TimeFormat;
 import com.vaadin.data.provider.DataProviderListener;
 import com.vaadin.data.provider.ListDataProvider;
 

@@ -1,6 +1,6 @@
-package com.mobilegenomics.genopo.dto;
+package com.mobilegenomics.f5n.dto;
 
-import com.mobilegenomics.genopo.core.Step;
+import com.mobilegenomics.f5n.core.Step;
 
 import java.io.Serializable;
 import java.util.ArrayList;

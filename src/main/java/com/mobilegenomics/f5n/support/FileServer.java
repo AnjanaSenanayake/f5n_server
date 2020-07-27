@@ -1,6 +1,6 @@
-package com.mobilegenomics.genopo.support;
+package com.mobilegenomics.f5n.support;
 
-import com.mobilegenomics.genopo.controller.DataController;
+import com.mobilegenomics.f5n.controller.DataController;
 import org.apache.ftpserver.FtpServer;
 import org.apache.ftpserver.FtpServerFactory;
 import org.apache.ftpserver.ftplet.*;

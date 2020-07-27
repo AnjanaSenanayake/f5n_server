@@ -1,4 +1,4 @@
-package com.mobilegenomics.genopo.dto;
+package com.mobilegenomics.f5n.dto;
 
 // Response class
 public class Response<U, V>

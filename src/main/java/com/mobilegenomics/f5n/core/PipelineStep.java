@@ -1,4 +1,4 @@
-package com.mobilegenomics.genopo.core;
+package com.mobilegenomics.f5n.core;
 
 public enum PipelineStep {
     MINIMAP2_SEQUENCE_ALIGNMENT(0, "minimap2 -x map-ont"),

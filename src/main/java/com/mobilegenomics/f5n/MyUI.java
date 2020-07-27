@@ -1,10 +1,10 @@
-package com.mobilegenomics.genopo;
+package com.mobilegenomics.f5n;
 
-import com.mobilegenomics.genopo.controller.DataController;
-import com.mobilegenomics.genopo.controller.UIController;
-import com.mobilegenomics.genopo.dto.State;
-import com.mobilegenomics.genopo.dto.WrapperObject;
-import com.mobilegenomics.genopo.support.TimeFormat;
+import com.mobilegenomics.f5n.controller.DataController;
+import com.mobilegenomics.f5n.controller.UIController;
+import com.mobilegenomics.f5n.dto.State;
+import com.mobilegenomics.f5n.dto.WrapperObject;
+import com.mobilegenomics.f5n.support.TimeFormat;
 import com.vaadin.annotations.PreserveOnRefresh;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.VaadinServletConfiguration;

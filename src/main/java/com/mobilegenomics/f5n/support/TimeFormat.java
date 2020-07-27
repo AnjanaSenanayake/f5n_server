@@ -1,4 +1,4 @@
-package com.mobilegenomics.genopo.support;
+package com.mobilegenomics.f5n.support;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
