@@ -1,4 +1,4 @@
-package com.mobilegenomics.f5n.dto;
+package com.mobilegenomics.genopo.dto;
 
 import java.io.Serializable;
 

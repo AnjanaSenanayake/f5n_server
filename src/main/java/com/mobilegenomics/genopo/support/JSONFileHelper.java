@@ -1,4 +1,4 @@
-package com.mobilegenomics.f5n.support;
+package com.mobilegenomics.genopo.support;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;

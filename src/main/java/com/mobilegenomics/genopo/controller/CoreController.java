@@ -1,14 +1,14 @@
-package com.mobilegenomics.f5n.controller;
+package com.mobilegenomics.genopo.controller;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.mobilegenomics.f5n.core.Argument;
-import com.mobilegenomics.f5n.core.PipelineComponent;
-import com.mobilegenomics.f5n.core.PipelineStep;
-import com.mobilegenomics.f5n.core.Step;
-import com.mobilegenomics.f5n.support.JSONFileHelper;
+import com.mobilegenomics.genopo.core.Argument;
+import com.mobilegenomics.genopo.core.PipelineComponent;
+import com.mobilegenomics.genopo.core.PipelineStep;
+import com.mobilegenomics.genopo.core.Step;
+import com.mobilegenomics.genopo.support.JSONFileHelper;
 
 import java.util.ArrayList;
 import java.util.Set;

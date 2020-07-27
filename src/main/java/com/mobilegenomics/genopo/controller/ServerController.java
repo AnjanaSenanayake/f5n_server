@@ -1,11 +1,11 @@
-package com.mobilegenomics.f5n.controller;
+package com.mobilegenomics.genopo.controller;
 
-import com.mobilegenomics.f5n.MyUI;
-import com.mobilegenomics.f5n.dto.ErrorMessage;
-import com.mobilegenomics.f5n.dto.Response;
-import com.mobilegenomics.f5n.dto.State;
-import com.mobilegenomics.f5n.dto.WrapperObject;
-import com.mobilegenomics.f5n.support.FileServer;
+import com.mobilegenomics.genopo.MyUI;
+import com.mobilegenomics.genopo.dto.ErrorMessage;
+import com.mobilegenomics.genopo.dto.Response;
+import com.mobilegenomics.genopo.dto.State;
+import com.mobilegenomics.genopo.dto.WrapperObject;
+import com.mobilegenomics.genopo.support.FileServer;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
