@@ -1,4 +1,4 @@
-package com.mobilegenomics.genopo.dto;
+package com.mobilegenomics.f5n.dto;
 
 public class Result {
     private Object object;

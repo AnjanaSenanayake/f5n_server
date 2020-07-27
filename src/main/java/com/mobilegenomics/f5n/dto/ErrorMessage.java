@@ -1,4 +1,4 @@
-package com.mobilegenomics.genopo.dto;
+package com.mobilegenomics.f5n.dto;
 
 public enum ErrorMessage {
     COMM_FAIL("Communication with client failed"),

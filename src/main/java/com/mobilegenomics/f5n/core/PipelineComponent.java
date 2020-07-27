@@ -1,4 +1,4 @@
-package com.mobilegenomics.genopo.core;
+package com.mobilegenomics.f5n.core;
 
 interface runNative {
 
